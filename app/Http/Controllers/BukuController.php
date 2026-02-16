@@ -30,7 +30,8 @@ class BukuController extends Controller
         $buku = Buku::where('kode', $validated['kode'])->orWhere('judul', $validated['judul'])->first();
 
         if($buku) {
-            return redirect()->back()->withInput()->with('error','Kode atau Judul buku yang sama sudah ada');
+            return redirect()->back()->withInput()
+            ->with('error','Kode atau Judul buku yang sama sudah ada');
         }
 
         $result = Buku::create([

@@ -16,7 +16,7 @@ class UserController extends Controller
     }
     public function create()
     {
-        return view('admin.user.create-user'); // Sesuaikan dengan nama view Anda
+        return view('admin.user.create-user');
     }
 
     public function store(Request $request)
@@ -44,7 +44,7 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        $user = User::findOrFail($id); // Akan throw 404 jika tidak ditemukan
+        $user = User::findOrFail($id);
         $user->delete();
 
         return redirect()->route('user')->with('success', 'User deleted successfully!');

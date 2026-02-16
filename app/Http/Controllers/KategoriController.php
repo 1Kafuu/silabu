@@ -24,14 +24,16 @@ class KategoriController extends Controller
         $kategori = Kategori::where('nama_kategori', $validated['nama_kategori'])->first();
 
         if ($kategori) {
-            return redirect()->back()->withInput()->with('error', 'Kategori dengan nama yang sama sudah ada');
+            return redirect()->back()->withInput()
+            ->with('error', 'Category with the same name already exists');
         }
 
         $result = Kategori::create([
             'nama_kategori' => $validated['nama_kategori'],
         ]);
 
-        return redirect()->route('category-list')->with('success','Category created successfully!');
+        return redirect()->route('category-list')
+        ->with('success','Category created successfully!');
     }
 
     public function edit($id) {
@@ -47,14 +49,16 @@ class KategoriController extends Controller
         $kategori = Kategori::where('nama_kategori', $validated['nama_kategori'])->first();
 
         if ($kategori) {
-            return redirect()->back()->withInput()->with('error', 'Category with the same name already exists');
+            return redirect()->back()->withInput()
+            ->with('error', 'Category with the same name already exists');
         }
 
         $result = Kategori::where('idkategori', $id)->update([
             'nama_kategori' => $validated['nama_kategori'],
         ]);
 
-        return redirect()->route('category-list')->with('success','Category updated successfully!');
+        return redirect()->route('category-list')
+        ->with('success','Category updated successfully!');
     }
 
     public function delete($id)
@@ -62,6 +66,7 @@ class KategoriController extends Controller
         $user = Kategori::findOrFail($id); 
         $user->delete();
 
-        return redirect()->route('category-list')->with('success', 'Category deleted successfully!');
+        return redirect()->route('category-list')
+        ->with('success', 'Category deleted successfully!');
     }
 }
