@@ -54,14 +54,14 @@
                     <div class="form-check">
                       <div class="form-check">
                       <label class="form-check-label text-muted">
-                        <input type="checkbox" class="form-check-input"> Keep me signed in </label>
+                        <input type="checkbox" class="form-check-input" name="remember"> Keep me signed in </label>
                     </div>
                     </div>
                     <a href="#" class="auth-link text-primary">Forgot password?</a>
                   </div>
                   <div class="mb-2 d-grid gap-2">
-                    <button type="button" class="btn btn-block btn-facebook auth-form-btn">
-                      <i class="mdi mdi-facebook me-2"></i>Connect using facebook </button>
+                    <a href="{{ route('google-login') }}" class="btn btn-block btn-google auth-form-btn">
+                      <i class="mdi mdi-google me-2"></i>Connect using google </a>
                   </div>
                   <div class="text-center mt-4 font-weight-light"> Don't have an account? <a href="{{route('register')}}" class="text-primary">Create</a>
                   </div>

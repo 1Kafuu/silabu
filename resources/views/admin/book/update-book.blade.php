@@ -1,5 +1,7 @@
-@extends('layouts.form')
+@extends('layouts.app')
 @section('title', 'Update Book')
+@section('page-title', 'Update Book')
+@section('page-subtitle', 'Update')
 
 @section('content')
     @if (session('success'))
@@ -18,7 +20,7 @@
     <div class="container">
         <!-- Form centered -->
         <div class="d-flex justify-content-center align-items-center">
-            <div class="col-12 col-sm-4 stretch-card">
+            <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Update Book</h4>
