@@ -1,19 +1,38 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
-use App\Http\Controllers\User;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
+use Laravel\Socialite\Socialite;
 
-// Route::get('/', function () {
-//     return view('auth.login');
-// });
-Route::get("/", function () {
-    return view("auth.login");
+Route::get('/auth/redirect', function () {
+    return Socialite::driver('google')->redirect();
+})->name('google-login');
+
+Route::get('/auth/callback', function () {
+    $googleUser = Socialite::driver('google')->user();
+
+    $user = User::updateOrCreate([
+        'google_id' => $googleUser->getId(),
+    ], [
+        'name' => $googleUser->getName(),
+        'email' => $googleUser->getEmail(),
+        'google_token' => $googleUser->token,
+        'google_refresh_token' => $googleUser->refreshToken,
+    ]);
+
+
+    Auth::login($user);
+
+    return redirect('/dashboard');
 });
+
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('login-form');
 
 Route::get("/dashboard", [HomeController::class,"index"])->name("dashboard")
 ->middleware('auth');
@@ -50,5 +69,3 @@ Route::get('/error-404', function () {
 })->name('error-404');
 
 Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

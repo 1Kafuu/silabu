@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Hash;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -43,12 +43,24 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
-    public function showLoginForm() {
+    public function showLoginForm()
+    {
         return view('auth.login');
     }
 
-    public function login(Request $request) {
-        // dd($request->all);
+    public function login(Request $request)
+    {
+        // 1. Rate limiting
+        $key = Str::lower($request->input('email')) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            return redirect()->back()
+                ->withErrors(['email' => 'Too many login attempts. Please try again in ' . $seconds . ' seconds.'])
+                ->withInput();
+        }
+
+        // 2. Validasi input
         $validate_input = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:8',
@@ -58,36 +70,57 @@ class LoginController extends Controller
             return redirect()->back()->withErrors($validate_input)->withInput();
         }
 
+        // 3. Generic error message untuk keamanan (prevent user enumeration)
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
 
-        // Multi role authentication
-        // $user = User::with(['role_user'=>function($query) {
-        //          $query->where('status', 1);
-        // }, 'role_user.role'])
-        // ->where('email', $request->input('email'))
-        // ->first();
+        if (!Auth::attempt($credentials, $remember)) {
+            // 4. Increment rate limiter on failure
+            RateLimiter::hit($key, 60);
 
-        $user = User::where('email', $request->email)->first();
+            // 5. Log failed attempt
+            \Log::warning('Failed login attempt', [
+                'email' => $request->email,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
 
-        if (!$user) {
-            return redirect()->back()->withErrors(['email'=>'Email tidak ditemukan.'])->withInput();
+            return redirect()->back()
+                ->withErrors(['email' => 'These credentials do not match our records.'])
+                ->withInput();
         }
 
-        if (!Hash::check($request->password, $user->password)) {
-            return redirect()->back()->withErrors(['password'=> 'Password salah.'])->withInput();
-        }
+        // 6. Regenerate session setelah login sukses
+        $request->session()->regenerate();
 
-        Auth::login($user);
+        // 7. Clear rate limiter on success
+        RateLimiter::clear($key);
 
+        // 8. Log successful login
+        \Log::info('Successful login', [
+            'user_id' => Auth::id(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        // 9. Update last login timestamp
+        $user = Auth::user();
+        $user->last_login_at = now();
+        $user->last_login_ip = $request->ip();
+        $user->save();
+
+        // 10. Session data (optional - bisa juga pakai Auth::user() langsung)
         $request->session()->put('user', [
             'id' => $user->id,
-            'email'=> $user->email,
+            'email' => $user->email,
             'name' => $user->username,
         ]);
 
         return redirect()->intended($this->redirectTo);
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         Auth::logout();
 
         $request->session()->invalidate();

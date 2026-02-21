@@ -13,10 +13,18 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
     use SoftDeletes;
 
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'google_id',
+        'google_token',
+        'google_refresh_token'
     ];
     protected $dates = ['deleted_at'];
     protected $hidden = [
