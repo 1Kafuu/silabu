@@ -1,5 +1,7 @@
-@extends('layouts.form')
+@extends('layouts.app')
 @section('title', 'Create User')
+@section('page-title', 'Create User')
+@section('page-subtitle', 'Add user')
 
 @section('content')
     @if (session('success'))
@@ -18,7 +20,7 @@
     <div class="container">
         <!-- Form centered -->
         <div class="d-flex justify-content-center align-items-center">
-            <div class="col-12 col-sm-4 stretch-card">
+            <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Create Users</h4>
@@ -54,11 +56,6 @@
                                 @error('password_confirmation')
                                     <span class="text-danger">{{$message}}</span>
                                 @enderror
-                            </div>
-                            <div class="form-check form-check-flat form-check-primary">
-                                <label class="form-check-label">
-                                    <input type="checkbox" class="form-check-input"> Remember me
-                                </label>
                             </div>
                             <button type="submit" class="btn btn-gradient-primary me-2">Submit</button>
                             <a href="{{ route('user') }}" class="btn btn-light">Cancel</a>

@@ -15,25 +15,25 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{route('dashboard')}}">
+      <a class="nav-link {{ request()->is('/dashboard*') ? 'active' : '' }}" href="{{route('dashboard')}}">
         <span class="menu-title">Dashboard</span>
         <i class="mdi mdi-home menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('user') ? 'active' : '' }}" href="{{ route('user') }}">
+      <a class="nav-link {{ request()->is('/user*') ? 'active' : '' }}" href="{{ route('user') }}">
         <span class="menu-title">User Management</span>
         <i class="mdi mdi-account-settings menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('book-list') ? 'active' : '' }}" href="{{ route('book-list') }}">
+      <a class="nav-link {{ request()->is('/book*') ? 'active' : '' }}" href="{{ route('book-list') }}">
         <span class="menu-title">Book</span>
         <i class="mdi mdi-book-open-page-variant menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('category') ? 'active' : '' }}" href="{{ route('category-list') }}">
+      <a class="nav-link {{ request()->is('/category*') ? 'active' : '' }}" href="{{ route('category-list') }}">
         <span class="menu-title">Category</span>
         <i class="mdi mdi-book menu-icon"></i>
       </a>

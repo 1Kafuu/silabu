@@ -30,7 +30,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -48,8 +48,9 @@ class LoginController extends Controller
     }
 
     public function login(Request $request) {
+        // dd($request->all);
         $validate_input = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users',
+            'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
 
@@ -92,6 +93,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('success', 'Logout berhasil');
+        return redirect('/')->with('success', 'Logout berhasil');
     }
 }
