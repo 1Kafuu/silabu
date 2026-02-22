@@ -52,12 +52,9 @@
 
     <div class="text-center mt-4 font-weight-light">
       Didn't receive the code?
-      <form method="POST" action="{{ route('send-otp') }}" style="display: inline;" id="resendForm">
-        @csrf
-        <button type="submit" class="btn btn-link text-primary p-0" id="resendOtp">
-          Resend OTP
-        </button>
-      </form>
+      <a href="{{ route('send-otp') }}" class="btn btn-link text-primary p-0 disabled" id="resendOtp">
+        Resend OTP
+      </a>
     </div>
 
     <div class="text-center mt-2">
@@ -67,6 +64,61 @@
 
   @push('js-page')
     <script>
+      // Optional: Add countdown timer for resend button
+      let timeLeft = 60;
+      const timerElement = document.getElementById('timer');
+      const resendLink = document.getElementById('resendOtp');
+
+      function startTimer() {
+        const timer = setInterval(() => {
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            timerElement.textContent = '';
+            resendLink.classList.remove('disabled');
+            resendLink.style.pointerEvents = 'auto';
+          } else {
+            timerElement.textContent = `Resend available in ${timeLeft} seconds`;
+            timeLeft--;
+          }
+        }, 1000);
+      }
+
+      // Disable resend link initially
+      resendLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!resendLink.classList.contains('disabled')) {
+          // Handle resend OTP
+          timeLeft = 60;
+          resendLink.classList.add('disabled');
+          resendLink.style.pointerEvents = 'none';
+          startTimer();
+
+          // Make AJAX call to resend OTP
+          fetch('{{ route("send-otp") }}', {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Content-Type': 'application/json'
+            }
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success!',
+                  text: 'OTP resent successfully!',
+                  timer: 3000,
+                  showConfirmButton: true
+                });
+              }
+            });
+        }
+      });
+
+      // Start timer on page load
+      startTimer();
+
       // Optional: Auto-paste OTP from clipboard
       document.getElementById('pasteOtp').addEventListener('click', async () => {
         try {

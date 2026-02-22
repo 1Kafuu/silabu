@@ -21,7 +21,8 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->name('login-form');
 
 Route::get('/verify', function () {
     return view('auth.otp-verify');
-})->name('otp-verify');
+})->name('otp-verify')
+->middleware(['auth', 'verified']);
 
 Route::post('/send-otp', [OTPController::class, 'sendOtpEmail'])->name('send-otp');
 
