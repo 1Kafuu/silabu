@@ -33,6 +33,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'status' => 'active',
         ]);
 
         if ($user) {

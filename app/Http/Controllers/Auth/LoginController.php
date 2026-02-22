@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendEmail;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -109,14 +112,66 @@ class LoginController extends Controller
         $user->last_login_ip = $request->ip();
         $user->save();
 
-        // 10. Session data (optional - bisa juga pakai Auth::user() langsung)
+        // 10. Session data (optional)
         $request->session()->put('user', [
             'id' => $user->id,
             'email' => $user->email,
-            'name' => $user->username,
+            'name' => $user->name,
+            'status' => $user->status,
         ]);
 
-        return redirect()->intended($this->redirectTo);
+        // 11. CEK STATUS USER
+        // Jika user status 'active' (belum verifikasi email) -> redirect ke OTP
+        if ($user->status === 'active' && !$user->hasVerifiedEmail()) {
+            // Generate OTP baru untuk verifikasi
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            // Set masa berlaku OTP (5 menit)
+            $expiresAt = Carbon::now()->addMinutes(5);
+
+            // Update OTP user
+            $user->update([
+                'otp' => $otp,
+                'otp_expires_at' => $expiresAt
+            ]);
+
+            // Kirim OTP ke email user
+            try {
+                Mail::to($user->email)->send(new SendEmail($otp));
+
+                // Untuk testing, simpan ke log
+                \Log::info('OTP for user ' . $user->email . ': ' . $otp);
+
+                // Redirect ke halaman verifikasi OTP
+                return redirect()->route('otp-verify')
+                    ->with('success', 'Please check your email for OTP code to verify your account.');
+
+            } catch (\Exception $e) {
+                \Log::error('Failed to send OTP email: ' . $e->getMessage());
+
+                return redirect()->route('otp-verify')
+                    ->with('warning', 'Failed to send OTP email. Please click resend button.');
+            }
+        }
+
+        // Jika user status 'verified' (email sudah terverifikasi) -> redirect ke dashboard
+        if ($user->status === 'verified' || $user->hasVerifiedEmail()) {
+            // Update status user jika perlu
+            if ($user->status !== 'verified') {
+                $user->update(['status' => 'verified']);
+            }
+
+            return redirect()->intended($this->redirectTo)
+                ->with('success', 'Welcome back, ' . $user->name . '!');
+        }
+
+        // Jika status lain (misal: suspended, inactive) -> logout dan beri pesan
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('/')
+            ->withErrors(['email' => 'Your account is not active. Please contact support.']);
     }
 
     public function logout(Request $request)
