@@ -3,12 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
     use SoftDeletes;
@@ -24,7 +25,12 @@ class User extends Authenticatable
         'password',
         'google_id',
         'google_token',
-        'google_refresh_token'
+        'google_refresh_token',
+        'status',
+        'last_login_at',
+        'last_login_ip',
+        'otp',
+        'otp_expires_at',
     ];
     protected $dates = ['deleted_at'];
     protected $hidden = [
@@ -37,5 +43,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isVerified()
+    {
+        return $this->status === 'verified';
     }
 }
