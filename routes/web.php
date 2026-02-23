@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\OTPController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,10 @@ Route::get('/verify', function () {
 Route::post('/send-otp', [OTPController::class, 'sendOtpEmail'])->name('send-otp');
 
 Route::post('/verified-otp', [OTPController::class, 'verifyOTP'])->name('verified-otp');
+
+Route::get('/pdf-portrait', [PDFGeneratorController::class, 'potrait'])->name('portrait');
+Route::get('/pdf-landscape', [PDFGeneratorController::class, 'landscape'])->name('landscape');
+
 
 Route::get("/dashboard", [HomeController::class, "index"])->name("dashboard")
     ->middleware(['auth', 'verified']);

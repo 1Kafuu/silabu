@@ -18,31 +18,37 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-        <div class="row">
-            <div class="col-12 grid-margin">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="row">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title">Book</h4>
-                        <a href="{{ route('create-book') }}" class="btn btn-success btn-sm">
-                            <i class="mdi mdi-book-plus"></i>
-                            <span class="mx-2">Add Book</span>
-                        </a>
+                        <div>
+                            <a href="{{ route('portrait') }}" class="btn btn-outline-success btn-sm">
+                                <span class="mx-2">Export to PDF</span>
+                                <i class="mdi mdi-file-export"></i>
+                            </a>
+                            <a href="{{ route('create-book') }}" class="btn btn-success btn-sm">
+                                <i class="mdi mdi-book-plus"></i>
+                                <span class="mx-2">Add Book</span>
+                            </a>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th> No </th>
-                                        <th> UID </th>
-                                        <th> Title </th>
-                                        <th> Author</th>
-                                        <th> Category </th>
-                                        <th> Action </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($book as $row)
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th> No </th>
+                                    <th> UID </th>
+                                    <th> Title </th>
+                                    <th> Author</th>
+                                    <th> Category </th>
+                                    <th> Action </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($book as $row)
                                     <tr>
                                         <td>
                                             {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
@@ -61,7 +67,8 @@
                                         </td>
                                         <td>
                                             <div class="d-flex justify-end gap-2">
-                                                <a href={{ route('edit-book', ['id' => $row->idbuku]) }} class="btn btn-outline-success btn-sm">
+                                                <a href={{ route('edit-book', ['id' => $row->idbuku]) }}
+                                                    class="btn btn-outline-success btn-sm">
                                                     <i c{lass="mdi mdi-account-edit"></i>
                                                     <span>Edit</span>
                                                 </a>
@@ -78,10 +85,10 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
 @endsection
