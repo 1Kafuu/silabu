@@ -35,26 +35,24 @@ var lightColor = getComputedStyle(document.body).getPropertyValue("--light");
 
         // Fungsi untuk menambahkan active class berdasarkan URL
         function addActiveClass(element) {
-            var href = element.attr('href');
-            if (!href || href === '#') return; // Abaikan link kosong
+            var href = element.attr("href");
+            if (!href || href === "#") return; // Abaikan link kosong
 
-            // Buat elemen anchor untuk parsing href (mengatasi url absolut/relatif)
-            var link = document.createElement('a');
+            var link = document.createElement("a");
             link.href = href;
             var linkPath = link.pathname;
 
-            // Hapus trailing slash untuk normalisasi
-            var normalizedLinkPath = linkPath.replace(/\/$/, '');
-            var normalizedCurrentPath = currentPath.replace(/\/$/, '');
+            var normalizedLinkPath = linkPath.replace(/\/$/, "");
+            var normalizedCurrentPath = currentPath.replace(/\/$/, "");
 
-            // Cek apakah link ini adalah root dan current path juga root
-            if (normalizedLinkPath === '' && normalizedCurrentPath === '') {
+            if (normalizedLinkPath === "" && normalizedCurrentPath === "") {
                 return activate(element);
             }
 
-            // Cek apakah link cocok dengan current path (parent atau exact)
-            if (normalizedCurrentPath === normalizedLinkPath ||
-                normalizedCurrentPath.startsWith(normalizedLinkPath + '/')) {
+            if (
+                normalizedCurrentPath === normalizedLinkPath ||
+                normalizedCurrentPath.startsWith(normalizedLinkPath + "/")
+            ) {
                 return activate(element);
             }
         }
@@ -70,27 +68,22 @@ var lightColor = getComputedStyle(document.body).getPropertyValue("--light");
             }
         }
 
-        // Ambil current path (tanpa query string atau hash)
         var currentPath = window.location.pathname;
 
-        // Terapkan ke semua link di sidebar
         $(".nav li a", sidebar).each(function () {
             var $this = $(this);
             addActiveClass($this);
         });
 
-        // Terapkan ke semua link di horizontal menu
         $(".horizontal-menu .nav li a").each(function () {
             var $this = $(this);
             addActiveClass($this);
         });
 
-        //Close other submenu in sidebar on opening any
         sidebar.on("show.bs.collapse", ".collapse", function () {
             sidebar.find(".collapse.show").collapse("hide");
         });
 
-        //Change sidebar and content-wrapper height
         applyStyles();
 
         function applyStyles() {

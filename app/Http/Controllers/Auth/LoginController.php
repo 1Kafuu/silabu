@@ -120,7 +120,6 @@ class LoginController extends Controller
             'status' => $user->status,
         ]);
 
-        // 11. CEK STATUS USER
         // Jika user status 'active' (belum verifikasi email) -> redirect ke OTP
         if ($user->status === 'active' && !$user->hasVerifiedEmail()) {
             // Generate OTP baru untuk verifikasi

@@ -38,5 +38,11 @@
         <i class="mdi mdi-book menu-icon"></i>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link {{ request()->is('/items*') ? 'active' : '' }}" href="{{ route('items-list') }}">
+        <span class="menu-title">Items</span>
+        <i class="mdi mdi-package menu-icon"></i>
+      </a>
+    </li>
   </ul>
 </nav>

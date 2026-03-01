@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
@@ -31,6 +32,12 @@ Route::post('/verified-otp', [OTPController::class, 'verifyOTP'])->name('verifie
 
 Route::get('/pdf-portrait', [PDFGeneratorController::class, 'potrait'])->name('portrait');
 Route::get('/pdf-landscape', [PDFGeneratorController::class, 'landscape'])->name('landscape');
+
+Route::post('/pdf-label', [PDFGeneratorController::class, 'label'])->name('label');
+
+Route::get('/label-selected', function () {
+    return view('partials._label');
+});
 
 
 Route::get("/dashboard", [HomeController::class, "index"])->name("dashboard")
@@ -61,6 +68,15 @@ Route::middleware(['auth', 'verified'])->prefix('category')->group(function () {
     Route::put('/delete:{id}', [KategoriController::class, 'delete'])->name('delete-category');
     Route::get('/edit:{id}', [KategoriController::class, 'edit'])->name('edit-category');
     Route::put('/update:{id}', [KategoriController::class, 'update'])->name('update-category');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('items')->group(function () {
+    Route::get('/', [BarangController::class, 'index'])->name('items-list');
+    Route::get('/create', [BarangController::class, 'create'])->name('create-items');
+    Route::post('/store', [BarangController::class, 'store'])->name('store-items');
+    Route::put('/delete:{id}', [BarangController::class, 'delete'])->name('delete-items');
+    Route::get('/edit:{id}', [BarangController::class, 'edit'])->name('edit-items');
+    Route::put('/update:{id}', [BarangController::class, 'update'])->name('update-items');
 });
 
 Auth::routes();
