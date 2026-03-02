@@ -40,7 +40,9 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" id="select-all" class="select-all-checkbox"></th>
+                                    <th style="text-align:center">
+                                        <input type="checkbox" name="select_all" id="select-all">
+                                    </th>
                                     <th> No </th>
                                     <th> UID </th>
                                     <th> Name </th>
@@ -52,7 +54,7 @@
                                 <tr>
                                     @foreach ($barang as $row)
                                         <tr>
-                                            <td>
+                                            <td style="text-align: center">
                                                 <input type="checkbox" name="selected_items[]" value="{{ $row->id_barang }}">
                                             </td>
                                             <td>
@@ -112,10 +114,17 @@
                 height: 40px;
                 border: 1px solid black;
                 cursor: pointer;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .slot:hover {
+                background-color: lightgreen;
             }
 
             .slot.active {
-                background: green;
+                background-color: green;
+                border-color: lightgreen;
             }
         </style>
     @endpush
@@ -176,19 +185,42 @@
                 });
             });
 
-            // Existing slot handling code
+            // Handle slot clicks
             document.querySelectorAll('.slot').forEach(el => {
                 el.addEventListener('click', function () {
                     let row = this.dataset.row;
                     let col = this.dataset.col;
-                    let key = row + '-' + col;
+                    let key = row + '-'.col;
 
-                    if (selectedSlots.includes(key)) {
-                        selectedSlots = selectedSlots.filter(s => s !== key);
-                        this.classList.remove('active');
-                    } else {
-                        selectedSlots.push(key);
-                        this.classList.add('active');
+                    // Hitung jumlah item yang dipilih
+                    const selectedCount = selectedItems.length;
+
+                    // Jika tidak ada item yang dipilih, beri peringatan atau return
+                    if (selectedCount === 0) {
+                        alert('Pilih item terlebih dahulu!');
+                        return;
+                    }
+
+                    // Hitung posisi mulai dari slot yang diklik
+                    let startIndex = (parseInt(row) - 1) * 5 + (parseInt(col) - 1);
+                    let allSlots = Array.from(document.querySelectorAll('.slot'));
+
+                    // Reset semua seleksi slot
+                    document.querySelectorAll('.slot').forEach(slot => {
+                        slot.classList.remove('active');
+                    });
+                    selectedSlots = [];
+
+                    // Aktifkan slot dari posisi yang dipilih sampai sejumlah data yang dipilih
+                    // atau sampai slot terakhir jika jumlah data melebihi slot tersisa
+                    for (let i = startIndex; i < allSlots.length && i < startIndex + selectedCount; i++) {
+                        let slot = allSlots[i];
+                        let slotRow = slot.dataset.row;
+                        let slotCol = slot.dataset.col;
+                        let slotKey = slotRow + '-' + slotCol;
+
+                        slot.classList.add('active');
+                        selectedSlots.push(slotKey);
                     }
 
                     document.getElementById('selected_slots').value = JSON.stringify(selectedSlots);
