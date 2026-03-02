@@ -24,10 +24,16 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title">Category</h4>
-                        <a href="{{ route('create-category') }}" class="btn btn-success btn-sm">
-                            <i class="mdi mdi-bookmark-plus"></i>
-                            <span class="mx-2">Add Category</span>
-                        </a>
+                        <div>
+                            <a href="{{ route('landscape') }}" class="btn btn-outline-success btn-sm">
+                                <span class="mx-2">Export to PDF</span>
+                                <i class="mdi mdi-file-export"></i>
+                            </a>
+                            <a href="{{ route('create-category') }}" class="btn btn-success btn-sm">
+                                <i class="mdi mdi-bookmark-plus"></i>
+                                <span class="mx-2">Add Category</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table">

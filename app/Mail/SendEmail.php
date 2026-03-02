@@ -32,7 +32,7 @@ class SendEmail extends Mailable
             replyTo: [
                 new Address('vicky@silabu,com','Vicky')
             ],
-            subject: 'Send Email',
+            subject: 'Kode OTP SIstem Kelola Buku',
         );
     }
 

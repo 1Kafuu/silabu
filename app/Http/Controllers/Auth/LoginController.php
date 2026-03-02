@@ -120,7 +120,6 @@ class LoginController extends Controller
             'status' => $user->status,
         ]);
 
-        // 11. CEK STATUS USER
         // Jika user status 'active' (belum verifikasi email) -> redirect ke OTP
         if ($user->status === 'active' && !$user->hasVerifiedEmail()) {
             // Generate OTP baru untuk verifikasi
@@ -170,7 +169,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('/')
+        return redirect()->back()
             ->withErrors(['email' => 'Your account is not active. Please contact support.']);
     }
 
