@@ -73,7 +73,7 @@
                 name: { required: "Please enter your username" },
                 email: {
                     required: "We need your email address",
-                    email: "Your email address must be in the format name@domain.com"
+                    email: "Your email address must be in the format name@gmail.com"
                 },
                 password: {
                     required: "Password is required",

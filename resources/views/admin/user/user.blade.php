@@ -74,7 +74,6 @@
         $(document).ready(function () {
             console.log('Document ready');
             let notification = sessionStorage.getItem('notification');
-            console.log(notification);
             if (notification) {
                 $('#notification-container').html(notification);
                 sessionStorage.removeItem('notification');

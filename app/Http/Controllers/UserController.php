@@ -28,6 +28,21 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        $userName = User::where('name', $validated['name'])->first();
+
+        if ($userName) {
+            session()->flash('error', 'User with the same name already exists. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
+
         // Create user
         $user = User::create([
             'name' => $validated['name'],
@@ -35,7 +50,6 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'status' => 'active',
         ]);
-
 
 
         if ($user) {
