@@ -36,10 +36,31 @@ class UserController extends Controller
             'status' => 'active',
         ]);
 
+
+
         if ($user) {
-            return redirect()->route('user')->with('success', 'User created successfully!');
+            session()->flash('success', 'User created successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('user')
+            ]);
         } else {
-            return redirect()->back()->with('error', 'Failed to create user!');
+            session()->flash('error', 'Failed to create user. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
         }
     }
 
@@ -51,17 +72,43 @@ class UserController extends Controller
         return redirect()->route('user')->with('success', 'User deleted successfully!');
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $user = User::where('id', $id)->get();
         return view('admin.user.update-user', compact('user'));
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
         $user = User::where('id', $id)->update($validated);
-        return redirect()->route('user')->with('success', 'User updated successfully!');
+
+        if ($user) {
+            session()->flash('success', 'User updated successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('user')
+            ]);
+        } else {
+            session()->flash('error', 'Failed to update user. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
     }
 }

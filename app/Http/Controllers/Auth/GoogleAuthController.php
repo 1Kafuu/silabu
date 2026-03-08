@@ -12,6 +12,10 @@ use Laravel\Socialite\Socialite;
 
 class GoogleAuthController extends Controller
 {
+    public function redirectToProvider(){
+        return Socialite::driver('google')->redirect();
+    }
+    
     public function handleGoogleCallback()
     {
         try {

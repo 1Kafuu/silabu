@@ -192,27 +192,22 @@
                     let col = this.dataset.col;
                     let key = row + '-'.col;
 
-                    // Hitung jumlah item yang dipilih
                     const selectedCount = selectedItems.length;
 
-                    // Jika tidak ada item yang dipilih, beri peringatan atau return
                     if (selectedCount === 0) {
                         alert('Pilih item terlebih dahulu!');
                         return;
                     }
 
-                    // Hitung posisi mulai dari slot yang diklik
                     let startIndex = (parseInt(row) - 1) * 5 + (parseInt(col) - 1);
                     let allSlots = Array.from(document.querySelectorAll('.slot'));
 
-                    // Reset semua seleksi slot
                     document.querySelectorAll('.slot').forEach(slot => {
                         slot.classList.remove('active');
                     });
                     selectedSlots = [];
 
-                    // Aktifkan slot dari posisi yang dipilih sampai sejumlah data yang dipilih
-                    // atau sampai slot terakhir jika jumlah data melebihi slot tersisa
+                    
                     for (let i = startIndex; i < allSlots.length && i < startIndex + selectedCount; i++) {
                         let slot = allSlots[i];
                         let slotRow = slot.dataset.row;

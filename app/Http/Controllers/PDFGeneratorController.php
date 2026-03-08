@@ -35,8 +35,8 @@ class PDFGeneratorController extends Controller
         $pdf = Pdf::loadView('pdf.label', [
             'selected' => $selected,
             'dataToPrint' => $dataBarang
-        ])->setPaper([0, 0, 595, 508]);
+        ])->setPaper([0, 0, 595.28, 481.89], 'potrait');
 
-        return $pdf->stream();
+        return $pdf->stream('label-harga.pdf');
     }
 }

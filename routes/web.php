@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Socialite;
 
-Route::get('/auth/redirect', function () {
-    return Socialite::driver('google')->redirect();
-})->name('google-login');
+Route::get('/auth/redirect', [GoogleAuthController::class, 'redirectToProvider'])->name('google-login');
 
 Route::get('/auth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 

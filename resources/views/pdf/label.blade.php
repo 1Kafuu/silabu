@@ -1,82 +1,84 @@
 <style>
     @page {
+        size: 21cm 17cm;
         margin: 0.3cm;
     }
 
     body {
         margin: 0;
         padding: 0;
+        font-size: 10px;
     }
 
     .sheet {
         border-collapse: collapse;
-        width: 20cm;
+        width: 20.4cm;
+        height: 16.4cm;
+        margin: 0 auto;
+        table-layout: fixed;
     }
 
-    .sheet td {
+    .sheet td.label-cell {
         padding: 0;
-        vertical-align: top;
+        width: 4.1cm;
+        height: 2.0cm;
     }
 
     .label {
         width: 3.8cm;
         height: 1.8cm;
-        font-size: 9px;
         overflow: hidden;
-        border: 1px solid black;
+        border: 1px solid white;
+        box-sizing: border-box;
+        background: #fff;
+        text-align: center;
     }
 
     .text {
-        padding: 5px;
         text-align: center;
         font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.1;
+        margin: 12px;
+        /* border: red 1px solid; */
     }
 
-    .text .nama {
-        font-size: 9px;
-        font-weight: medium;
+    .nama {
+        font-size: 8px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .text .harga {
-        font-size: 15px;
+    .harga {
+        font-size: 14px;
         font-weight: bold;
+        margin: 2px 0;
     }
 
-    .text .kode {
-        margin-top: 3px;
-        font-size: 10px;
-    }
-
-    .gap-x {
-        width: 0.3cm;
-    }
-
-    .gap-y {
-        height: 0.3cm;
+    .kode {
+        font-size: 9px;
+        color: #555;
     }
 </style>
-<table class="sheet"> @php $index = 0; @endphp
 
-    @for ($row = 1; $row <= 8; $row++)
+<table class="sheet">
+    @php $index = 0; @endphp
+    @for ($row = 0; $row < 8; $row++)
         <tr>
-            @for ($col = 1; $col <= 5; $col++)
+            @for ($col = 0; $col < 5; $col++)
                 @php
-                    $key = $row . '-' . $col;
+                    $key = ($row + 1) . '-' . ($col + 1);
                 @endphp
-
-                <td>
+                <td class="label-cell">
                     <div class="label">
-                        @if(in_array($key, $selected) && $index < count($dataToPrint))
+                        @if(in_array($key, $selected ?? []) && $index < count($dataToPrint ?? []))
                             <div class="text">
-                                <div class="nama">
-                                    {{ $dataToPrint[$index]->nama }}
-                                </div>
+                                <div class="nama">{{ $dataToPrint[$index]->nama ?? '' }}</div>
                                 <div class="harga">
-                                    {{ Illuminate\Support\Number::currency($dataToPrint[$index]->harga, 'IDR', 'id') }}
+                                    {{ Illuminate\Support\Number::currency($dataToPrint[$index]->harga ?? 0, 'IDR', 'id') }}
                                 </div>
-                                <div class="kode">
-                                    ID: {{ $dataToPrint[$index]->id_barang }}
-                                </div>
+                                <div class="kode">ID: {{ $dataToPrint[$index]->id_barang ?? '' }}</div>
                             </div>
                             @php $index++; @endphp
                         @else
@@ -88,12 +90,7 @@
                         @endif
                     </div>
                 </td>
-                <td class="gap-x"></td>
             @endfor
         </tr>
-        <tr>
-            <td colspan="9" class="gap-y"></td>
-        </tr>
     @endfor
-
 </table>
