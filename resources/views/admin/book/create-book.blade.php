@@ -72,7 +72,7 @@
                 kategori: { required: true }
             },
             messages: {
-                name: { required: "Please enter the book code" },
+                kode: { required: "Please enter the book code" },
                 judul: { required: "Please enter the book title" },
                 pengarang: { required: "Please enter the author's name" },
                 kategori: { required: "Please select a category" }
