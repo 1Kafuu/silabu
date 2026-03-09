@@ -77,20 +77,6 @@ class KategoriController extends Controller
             'nama_kategori' => 'required|string|max:255',
         ]);
 
-        $kategori = Kategori::where('nama_kategori', $validated['nama_kategori'])->first();
-
-        if ($kategori) {
-            session()->flash('error', 'Category with the same name already exists. Please try again.');
-
-            $notificationHTML = view('components.notification')->render();
-
-            \Log::info('Notification HTML: ' . $notificationHTML);
-
-            return response()->json([
-                'success' => false,
-                'notification' => $notificationHTML
-            ], 500);
-        }
 
         $result = Kategori::where('idkategori', $id)->update([
             'nama_kategori' => $validated['nama_kategori'],

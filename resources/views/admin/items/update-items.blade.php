@@ -5,23 +5,12 @@
 
 @section('content')
     <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session(key: 'error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
         <!-- Form centered -->
         <div class="d-flex justify-content-center align-items-center">
             <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
+                        <div id="notification-container"></div>
                         <h4 class="card-title">Update Items</h4>
                         <p class="card-description">Add new items</p>
 
@@ -47,7 +36,8 @@
                                     @enderror
                                 </div>
                             </form>
-                            <button id="update-submit-button" type="submit" class="btn btn-gradient-primary me-2">Submit</button>
+                            <button id="update-submit-button" type="submit"
+                                class="btn btn-gradient-primary me-2">Submit</button>
                             <a href="{{ route('items-list') }}" class="btn btn-light">Cancel</a>
                         @endforeach
                     </div>

@@ -84,21 +84,6 @@ class BarangController extends Controller
             'harga' => 'required|integer',
         ]);
 
-        $barang = Barang::where('nama', $validated['nama'])->first();
-
-        if ($barang) {
-            session()->flash('error', 'Items with the same name already exists. Please try again.');
-
-            $notificationHTML = view('components.notification')->render();
-
-            \Log::info('Notification HTML: ' . $notificationHTML);
-
-            return response()->json([
-                'success' => false,
-                'notification' => $notificationHTML
-            ], 500);
-        }
-
         $result = Barang::where('id_barang', $id)->update([
             'nama' => $validated['nama'],
             'harga' => $validated['harga'],

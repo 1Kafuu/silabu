@@ -78,7 +78,6 @@
                 $('#notification-container').html(notification);
                 sessionStorage.removeItem('notification');
 
-                // Auto dismiss after 5 seconds
                 setTimeout(function () {
                     $('.alert').fadeOut('slow', function () {
                         $(this).remove();
