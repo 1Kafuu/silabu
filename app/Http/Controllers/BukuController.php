@@ -29,9 +29,17 @@ class BukuController extends Controller
 
         $buku = Buku::where('kode', $validated['kode'])->orWhere('judul', $validated['judul'])->first();
 
-        if($buku) {
-            return redirect()->back()->withInput()
-            ->with('error','Kode atau Judul buku yang sama sudah ada');
+        if ($buku) {
+            session()->flash('error', 'Book with the same name or code already exists. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
         }
 
         $result = Buku::create([
@@ -41,7 +49,30 @@ class BukuController extends Controller
             'idkategori' => $validated['idkategori'],
         ]);
 
-        return redirect()->route('book-list')->with('success','Book created successfully!');
+        if ($result) {
+            session()->flash('success', 'Book created successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('book-list')
+            ]);
+        } else {
+            session()->flash('error', 'Failed to create book. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
     }
     
     public function edit($id) {
@@ -65,7 +96,30 @@ class BukuController extends Controller
             'idkategori'=> $validated['idkategori'],
         ]);
 
-        return redirect()->route('book-list')->with('success','Book updatede successfully!');
+        if ($result) {
+            session()->flash('success', 'Book updated successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('book-list')
+            ]);
+        } else {
+            session()->flash('error', 'Failed to update book. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
     }
 
     public function delete($id) {

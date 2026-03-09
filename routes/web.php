@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Socialite;
 
-Route::get('/auth/redirect', function () {
-    return Socialite::driver('google')->redirect();
-})->name('google-login');
+Route::get('/auth/redirect', [GoogleAuthController::class, 'redirectToProvider'])->name('google-login');
 
 Route::get('/auth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
@@ -77,6 +75,21 @@ Route::middleware(['auth', 'verified'])->prefix('items')->group(function () {
     Route::put('/delete:{id}', [BarangController::class, 'delete'])->name('delete-items');
     Route::get('/edit:{id}', [BarangController::class, 'edit'])->name('edit-items');
     Route::put('/update:{id}', [BarangController::class, 'update'])->name('update-items');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('shipment')->group(function () {
+    Route::get('/', function () { 
+        return view('admin.shipment.shipment'); 
+    })->name('shipment');
+    Route::get('/datatables', function () {
+        return view('admin.shipment.shipment-datatables');
+    })->name('shipment-datatables');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('kota')->group(function () {
+    Route::get('/', function () { 
+        return view('admin.kota.kota'); 
+    })->name('kota');
 });
 
 Auth::routes();

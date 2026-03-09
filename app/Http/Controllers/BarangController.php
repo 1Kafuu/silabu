@@ -9,8 +9,8 @@ class BarangController extends Controller
 {
     public function index()
     {
-        $barang = Barang::orderBy("id_barang","asc")->get();
-        return view("admin.items.items",compact('barang') );
+        $barang = Barang::orderBy("id_barang", "asc")->get();
+        return view("admin.items.items", compact('barang'));
     }
 
     public function create()
@@ -28,8 +28,16 @@ class BarangController extends Controller
         $barang = Barang::where('nama', $validated['nama'])->first();
 
         if ($barang) {
-            return redirect()->back()->withInput()
-            ->with('error', 'Items with the same name already exists');
+            session()->flash('error', 'Items with the same name already exists. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
         }
 
         $result = Barang::create([
@@ -37,8 +45,30 @@ class BarangController extends Controller
             'harga' => $validated['harga'],
         ]);
 
-        return redirect()->route('items-list')
-        ->with('success','Items created successfully!');
+        if ($result) {
+            session()->flash('success', 'Items created successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('items-list')
+            ]);
+        } else {
+            session()->flash('error', 'Failed to create item. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -59,16 +89,38 @@ class BarangController extends Controller
             'harga' => $validated['harga'],
         ]);
 
-        return redirect()->route('items-list')
-        ->with('success','Items updated successfully!');
+        if ($result) {
+            session()->flash('success', 'Items updated successfully!');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => true,
+                'notification' => $notificationHTML,
+                'redirect' => route('items-list')
+            ]);
+        } else {
+            session()->flash('error', 'Failed to update item. Please try again.');
+
+            $notificationHTML = view('components.notification')->render();
+
+            \Log::info('Notification HTML: ' . $notificationHTML);
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
     }
 
     public function delete($id)
     {
-        $barang = Barang::findOrFail($id); 
+        $barang = Barang::findOrFail($id);
         $barang->delete();
 
         return redirect()->route('items-list')
-        ->with('success', 'Items deleted successfully!');
+            ->with('success', 'Items deleted successfully!');
     }
 }

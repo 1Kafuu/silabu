@@ -5,19 +5,8 @@
 @section('page-subtitle', 'Category Lists')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+<div id="notification-container"></div>
 
-    @if (session(key: 'error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
     <div class="row">
         <div class="col-12 grid-margin">
             <div class="card">
@@ -83,3 +72,24 @@
             </div>
         </div>
 @endsection
+
+@push('js-page')
+    <script>
+        $(document).ready(function () {
+            console.log('Document ready');
+            let notification = sessionStorage.getItem('notification');
+            console.log(notification);
+            if (notification) {
+                $('#notification-container').html(notification);
+                sessionStorage.removeItem('notification');
+
+                // Auto dismiss after 5 seconds
+                setTimeout(function () {
+                    $('.alert').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+        });
+    </script>
+@endpush

@@ -15,33 +15,45 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('/dashboard*') ? 'active' : '' }}" href="{{route('dashboard')}}">
+      <a class="nav-link" href="{{route('dashboard')}}">
         <span class="menu-title">Dashboard</span>
         <i class="mdi mdi-home menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('/user*') ? 'active' : '' }}" href="{{ route('user') }}">
+      <a class="nav-link" href="{{ route('user') }}">
         <span class="menu-title">User Management</span>
         <i class="mdi mdi-account-settings menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('/book*') ? 'active' : '' }}" href="{{ route('book-list') }}">
+      <a class="nav-link" href="{{ route('book-list') }}">
         <span class="menu-title">Book</span>
         <i class="mdi mdi-book-open-page-variant menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('/category*') ? 'active' : '' }}" href="{{ route('category-list') }}">
+      <a class="nav-link" href="{{ route('category-list') }}">
         <span class="menu-title">Category</span>
         <i class="mdi mdi-book menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ request()->is('/items*') ? 'active' : '' }}" href="{{ route('items-list') }}">
+      <a class="nav-link" href="{{ route('items-list') }}">
         <span class="menu-title">Items</span>
         <i class="mdi mdi-package menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('shipment') }}">
+        <span class="menu-title">Shipment</span>
+        <i class="mdi mdi-cart menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('kota') }}">
+        <span class="menu-title">Kota</span>
+        <i class="mdi mdi-city menu-icon"></i>
       </a>
     </li>
   </ul>

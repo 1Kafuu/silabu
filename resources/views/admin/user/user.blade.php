@@ -5,19 +5,7 @@
 @section('page-subtitle', 'User Lists')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if (session(key: 'error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+    <div id="notification-container"></div>
 
     <div class="row">
         <div class="col-12 grid-margin">
@@ -54,7 +42,8 @@
                                         </td>
                                         <td>
                                             <div class="d-flex justify-end gap-2">
-                                                <a href={{ route('edit-user', ['id' => $row->id]) }} class="btn btn-outline-success btn-sm">
+                                                <a href={{ route('edit-user', ['id' => $row->id]) }}
+                                                    class="btn btn-outline-success btn-sm">
                                                     <i c{lass="mdi mdi-account-edit"></i>
                                                     <span>Edit</span>
                                                 </a>
@@ -79,3 +68,22 @@
         </div>
     </div>
 @endsection
+
+@push('js-page')
+    <script>
+        $(document).ready(function () {
+            console.log('Document ready');
+            let notification = sessionStorage.getItem('notification');
+            if (notification) {
+                $('#notification-container').html(notification);
+                sessionStorage.removeItem('notification');
+
+                setTimeout(function () {
+                    $('.alert').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+        });
+    </script>
+@endpush
