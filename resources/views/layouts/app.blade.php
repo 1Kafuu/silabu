@@ -64,6 +64,7 @@
   <script src="{{ asset('js/settings.js') }}"></script>
   <script src="{{ asset('js/todolist.js') }}"></script>
   <script src="{{ asset('js/jquery.cookie.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- endinject -->
   <!-- Custom js for this page -->
   @stack('js-page')

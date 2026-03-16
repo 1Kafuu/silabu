@@ -9,6 +9,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WilayahController;
+use App\Http\Controllers\POSController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Socialite;
@@ -84,6 +86,20 @@ Route::middleware(['auth', 'verified'])->prefix('shipment')->group(function () {
     Route::get('/datatables', function () {
         return view('admin.shipment.shipment-datatables');
     })->name('shipment-datatables');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('wilayah')->group(function () {
+    Route::get('/axios', [WilayahController::class, 'indexAxios'])->name('wilayah-axios');
+    Route::get('/ajax', [WilayahController::class, 'indexAjax'])->name('wilayah-ajax');
+    Route::post('/get-kota', [WilayahController::class, 'getKota'])->name('get-kota');
+    Route::post('/get-kecamatan', [WilayahController::class, 'getKecamatan'])->name('get-kecamatan');
+    Route::post('/get-kelurahan', [WilayahController::class, 'getKelurahan'])->name('get-kelurahan');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('pos')->group(function () {
+    Route::get('/axios', [POSController::class, 'indexAxios'])->name('pos-axios');
+    Route::get('/ajax', [POSController::class, 'indexAjax'])->name('pos-ajax');
+    Route::post('/store', [POSController::class, 'store'])->name('pos-store');
 });
 
 Route::middleware(['auth', 'verified'])->prefix('kota')->group(function () {

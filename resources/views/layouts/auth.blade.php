@@ -45,10 +45,6 @@
     <!-- Plugin js for this page -->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script src="{{ asset ('js/off-canvas.js') }}"></script>
-    <script src="{{ asset ('js/misc.js') }}"></script>
-    <script src="{{ asset ('js/settings.js') }}"></script>
-    <script src="{{ asset ('js/todolist.js') }}"></script>
     <script src="{{ asset ('js/jquery.cookie.js') }}"></script>
     @stack('js-page')
     <!-- endinject -->

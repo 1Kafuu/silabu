@@ -56,5 +56,29 @@
         <i class="mdi mdi-city menu-icon"></i>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('wilayah-ajax') }}">
+        <span class="menu-title">Wilayah (Ajax)</span>
+        <i class="mdi mdi-city-variant menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('wilayah-axios') }}">
+        <span class="menu-title">Wilayah (Axios)</span>
+        <i class="mdi mdi-city-variant menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('pos-ajax') }}">
+        <span class="menu-title">Point Of Sales (Ajax)</span>
+        <i class="mdi mdi-cart-arrow-down menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('pos-axios') }}">
+        <span class="menu-title">Point Of Sales (Axios)</span>
+        <i class="mdi mdi-cart-arrow-down menu-icon"></i>
+      </a>
+    </li>
   </ul>
 </nav>
