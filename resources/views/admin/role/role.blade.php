@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'User Management')
-@section('page-title', 'Users')
-@section('page-subtitle', 'User Lists')
+@section('title', 'Role Management')
+@section('page-title', 'Roles')
+@section('page-subtitle', 'Role Lists')
 
 @section('content')
     <div id="notification-container"></div>
@@ -12,10 +12,10 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="card-title mb-0">Users</h4>
-                        <a href="{{ route('create-user') }}" class="btn btn-success btn-sm">
-                            <i class="mdi mdi-account-plus"></i>
-                            <span class="mx-2">Add User</span>
+                        <h4 class="card-title mb-0">Roles</h4>
+                        <a href="{{ route('create-role') }}" class="btn btn-success btn-sm">
+                            <i class="mdi mdi-shield-plus"></i>
+                            <span class="mx-2">Add Role</span>
                         </a>
                     </div>
                     <div class="table-responsive">
@@ -23,40 +23,31 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="30%">Username</th>
-                                    <th width="35%">Email</th>
+                                    <th width="30%">Role Name</th>
                                     <th width="25%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $row)
+                                @foreach ($roles as $row)
                                     <tr>
                                         <td>
                                             {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                                         </td>
                                         <td>
-                                            {{ $row->name }}
-                                        </td>
-                                        <td>
-                                            {{ $row->email }}
-                                        </td>
+                                            {{ $row->nama_role }}
+                                        </td>                                
                                         <td>
                                             <div class="d-flex justify-end gap-2">
-                                                <a href={{ route('manage-role', ['id' => $row->id]) }}
-                                                    class="btn btn-outline-info btn-sm">
-                                                    <i class="mdi mdi-shield-account"></i>
-                                                    <span>Assign Role</span>
-                                                </a>
-                                                <a href={{ route('edit-user', ['id' => $row->id]) }}
+                                                <a href={{ route('edit-role', ['id' => $row->idrole]) }}
                                                     class="btn btn-outline-success btn-sm">
                                                     <i class="mdi mdi-account-edit"></i>
                                                     <span>Edit</span>
                                                 </a>
-                                                <form method="POST" action="{{ route('delete-user', ['id' => $row->id]) }}">
+                                                <form method="POST" action="{{ route('delete-role', ['id' => $row->idrole]) }}">
                                                     @csrf
                                                     @method('PUT')
                                                     <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus role ini?')">
                                                         <i class="mdi mdi-account-remove"></i>
                                                         <span>Delete</span>
                                                     </button>

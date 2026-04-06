@@ -33,7 +33,7 @@
     <!-- partial -->
     <div class="container-fluid page-body-wrapper">
       <!-- partial:../../partials/_sidebar.html -->
-      @include('partials._sidebar')
+      @include('customer_partials._sidebar')
       <!-- partial -->
       <div class="main-panel">
         <div class="content-wrapper">

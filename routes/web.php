@@ -5,12 +5,14 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PDFGeneratorController;
+use App\Http\Controllers\POSController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WilayahController;
-use App\Http\Controllers\POSController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Socialite;
@@ -49,6 +51,21 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('user')->group(function (
     Route::put('/delete:{id}', [UserController::class, 'delete'])->name('delete-user');
     Route::get('/edit:{id}', [UserController::class, 'edit'])->name('edit-user');
     Route::put('/update:{id}', [UserController::class, 'update'])->name('update-user');
+    Route::get('/manage:{id}', [UserController::class, 'manage'])->name('manage-role');
+    Route::post('/assign-role:{id}', [UserController::class, 'assignRole'])->name('assign-role');
+    Route::post('/update-roles:{id}', [UserController::class, 'updateRoles'])->name('update-roles');
+    Route::put('/set-active-role:{userId}/{roleUserId}', [UserController::class, 'setActiveRole'])->name('set-active-role');
+    Route::put('/set-inactive-role:{userId}/{roleUserId}', [UserController::class, 'setInactiveRole'])->name('set-inactive-role');
+    Route::delete('/remove-role:{userId}/{roleUserId}', [UserController::class, 'removeRole'])->name('remove-role');
+});
+
+Route::middleware(['verified', 'akses:Admin'])->prefix('role')->group(function () {
+    Route::get('/', [RoleController::class, 'index'])->name('role');
+    Route::get('/create', [RoleController::class, 'create'])->name('create-role');
+    Route::post('/store', [RoleController::class, 'store'])->name('store-role');
+    Route::put('/delete:{id}', [RoleController::class, 'delete'])->name('delete-role');
+    Route::get('/edit:{id}', [RoleController::class, 'edit'])->name('edit-role');
+    Route::put('/update:{id}', [RoleController::class, 'update'])->name('update-role');
 });
 
 Route::middleware(['verified', 'akses:Admin'])->prefix('book')->group(function () {
@@ -105,6 +122,14 @@ Route::middleware(['auth', 'verified', 'akses:Admin'])->prefix('kota')->group(fu
     Route::get('/', function () { 
         return view('admin.kota.kota'); 
     })->name('kota');
+});
+
+Route::prefix('customer')->group(function () {
+    Route::get('/', [CustomerController::class, 'index'])->name('customer-list');
+});
+
+Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
+    Route::get('/', [CustomerController::class, 'index'])->name('vendor-list');
 });
 
 Auth::routes();

@@ -22,6 +22,7 @@ class CheckVerified
     public function handle(Request $request, Closure $next)
     {
         // Cek apakah user sudah login
+        
         if (!Auth::check()) {
             return redirect()->route('login-form')->with([
                 'status' => 'danger',
