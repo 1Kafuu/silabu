@@ -30,7 +30,38 @@
             <div class="col-lg-4 mx-auto">
               <!-- Template -->
               @yield('content')
-            <!-- Template End -->
+              <!-- Template End -->
+              
+              <!-- Notifications -->
+              @if (session('status') && session('message'))
+                <script>
+                  const status = "{{ session('status') }}";
+                  const message = "{{ session('message') }}";
+                  
+                  if (status === 'danger') {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Oops...',
+                      text: message,
+                      confirmButtonText: 'OK'
+                    });
+                  } else if (status === 'success') {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Berhasil',
+                      text: message,
+                      confirmButtonText: 'OK'
+                    });
+                  } else if (status === 'warning') {
+                    Swal.fire({
+                      icon: 'warning',
+                      title: 'Perhatian',
+                      text: message,
+                      confirmButtonText: 'OK'
+                    });
+                  }
+                </script>
+              @endif
             </div>
           </div>
         </div>

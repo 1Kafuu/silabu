@@ -23,7 +23,10 @@ class CheckVerified
     {
         // Cek apakah user sudah login
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login-form')->with([
+                'status' => 'danger',
+                'message' => 'Silakan login terlebih dahulu.'
+            ]);
         }
 
         // Cek apakah user sudah verified
@@ -50,7 +53,7 @@ class CheckVerified
             Mail::to($user->email)->send(new SendEmail($otp));
 
             return redirect()->route('otp-verify')
-                ->with('error', 'Akun Anda belum terverifikasi. Silakan check email Anda untuk mendapatkan kode OTP.');
+                ->with(['error' => 'Akun Anda belum terverifikasi. Silakan check email Anda untuk mendapatkan kode OTP.']);
         }
 
         return $next($request);

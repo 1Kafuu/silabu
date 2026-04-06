@@ -11,15 +11,45 @@
                 <div class="card-body">
                     <h4 class="card-title">Keranjang Belanja (AJAX)</h4>
                     <div class="form-group">
-                        <label>Pilih Barang</label>
-                        <select class="form-select" id="pilih_barang" onchange="tambahKeKeranjang()">
-                            <option value="">-- Pilih Barang --</option>
-                            @foreach($barangs as $b)
-                                <option value="{{ $b->id_barang }}" data-nama="{{ $b->nama }}" data-harga="{{ $b->harga }}">
-                                    [{{ $b->id_barang }}] {{ $b->nama }} - Rp {{ number_format($b->harga, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Kode Barang</label>
+                                <input type="text" class="form-control" id="pilih_barang" list="list_barang"
+                                    placeholder="Ketik kode..." oninput="updateInfoBarang()"
+                                    onkeypress="handleEnter(event)">
+                                <datalist id="list_barang">
+                                    @foreach($barangs as $b)
+                                        <option value="{{ $b->id_barang }}" data-nama="{{ $b->nama }}"
+                                            data-harga="{{ $b->harga }}">
+                                            {{ $b->nama }}
+                                        </option>
+                                    @endforeach
+                                </datalist>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Nama Barang</label>
+                                <input type="text" id="info_nama" class="form-control" readonly
+                                    placeholder="Nama barang...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Harga</label>
+                                <input type="text" id="info_harga" class="form-control" readonly placeholder="Rp 0">
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <label class="form-label">Qty</label>
+                                <input type="number" id="jumlah_barang" class="form-control" value="0" min="1"
+                                    oninput="cekInput()" onkeypress="handleEnter(event)">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12 text-right d-flex justify-content-end">
+                                <button type="button" id="btn-tambah" class="btn btn-success btn-lg px-5"
+                                    style="background-color: #66e0c8; border-color: #66e0c8;" onclick="tambahKeKeranjang()"
+                                    disabled>
+                                    Tambah Ke Keranjang
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="table-responsive">
@@ -102,28 +132,83 @@
     <script>
         let keranjang = [];
 
+        function updateInfoBarang() {
+            const val = $('#pilih_barang').val();
+            const opt = $('#list_barang option[value="' + val + '"]');
+
+            if (opt.length > 0) {
+                const nama = opt.data('nama');
+                const harga = opt.data('harga');
+
+                $('#info_nama').val(nama);
+                $('#info_harga').val('Rp ' + harga.toLocaleString('id-ID'));
+
+                if ($('#jumlah_barang').val() == 0) {
+                    $('#jumlah_barang').val(1).focus();
+                }
+
+            } else {
+                $('#info_nama').val('');
+                $('#info_harga').val('');
+            }
+            cekInput();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const btn = $('#btn-tambah');
+                if (!btn.prop('disabled')) {
+                    tambahKeKeranjang();
+                    $('#pilih_barang').focus(); // Kembali fokus ke input kode
+                }
+            }
+        }
+
+        function cekInput() {
+            const kode = $('#pilih_barang').val();
+            const qty = parseInt($('#jumlah_barang').val());
+            const valid = $('#list_barang option[value="' + kode + '"]').length > 0;
+
+            $('#btn-tambah').prop('disabled', !(valid && qty > 0));
+        }
+
         function tambahKeKeranjang() {
-            const sel = $('#pilih_barang');
-            const opt = sel.find(':selected');
-            if (!opt.val()) return;
+            const inputKode = $('#pilih_barang');
+            const inputJumlah = $('#jumlah_barang');
+            const kode = inputKode.val();
+            const qtyInput = parseInt(inputJumlah.val());
+
+            const opt = $('#list_barang option[value="' + kode + '"]');
+
+            if (opt.length === 0 || qtyInput <= 0) return;
 
             const item = {
-                id_barang: opt.val(),
+                id_barang: kode,
                 nama: opt.data('nama'),
                 harga: parseInt(opt.data('harga')),
-                qty: 1,
-                subtotal: parseInt(opt.data('harga'))
+                qty: qtyInput,
+                subtotal: parseInt(opt.data('harga')) * qtyInput
             };
 
             const existing = keranjang.find(i => i.id_barang === item.id_barang);
             if (existing) {
-                existing.qty++;
+                existing.qty += qtyInput;
                 existing.subtotal = existing.qty * existing.harga;
             } else {
                 keranjang.push(item);
             }
+
             renderKeranjang();
-            sel.val("");
+
+            // Reset Form Input
+            inputKode.val("");
+            $('#info_nama').val("");
+            $('#info_harga').val("");
+            inputJumlah.val(0);
+            $('#btn-tambah').prop('disabled', true);
+
+            inputKode.focus();
         }
 
         function renderKeranjang() {
@@ -133,12 +218,12 @@
             keranjang.forEach((item, index) => {
                 total += item.subtotal;
                 html += `<tr>
-                                                    <td>${item.nama}</td>
-                                                    <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
-                                                    <td>${item.qty}</td>
-                                                    <td>Rp ${item.subtotal.toLocaleString('id-ID')}</td>
-                                                    <td><button onclick="hapusItem(${index})" class="btn btn-danger btn-sm">X</button></td>
-                                                </tr>`;
+                             <td>${item.nama}</td>
+                              <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
+                              <td>${item.qty}</td>
+                              <td>Rp ${item.subtotal.toLocaleString('id-ID')}</td>
+                              <td><button onclick="hapusItem(${index})" class="btn btn-danger btn-sm">X</button></td>
+                        </tr>`;
             });
 
             $('#keranjang-body').html(html || '<tr><td colspan="5" class="text-center text-muted">Belum ada barang di keranjang</td></tr>');
@@ -168,13 +253,13 @@
         }
 
         function setButtonLoading(btn, text) {
-            $(btn).prop('disabled', true); 
-            $(btn).data('original-text', $(btn).html()); 
+            $(btn).prop('disabled', true);
+            $(btn).data('original-text', $(btn).html());
             $(btn).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + text);
         }
 
         function resetButtonLoading(btn) {
-            $(btn).prop('disabled', false); 
+            $(btn).prop('disabled', false);
             $(btn).html($(btn).data('original-text'));
         }
 

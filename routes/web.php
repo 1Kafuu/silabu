@@ -24,7 +24,7 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->name('login-form');
 Route::get('/verify', function () {
     return view('auth.otp-verify');
 })->name('otp-verify')
-->middleware(['auth', 'verified']);
+->middleware(['verified']);
 
 Route::post('/send-otp', [OTPController::class, 'sendOtpEmail'])->name('send-otp');
 
@@ -39,11 +39,10 @@ Route::get('/label-selected', function () {
     return view('partials._label');
 });
 
-
 Route::get("/dashboard", [HomeController::class, "index"])->name("dashboard")
-    ->middleware(['auth', 'verified']);
+    ->middleware(['verified', 'akses:Admin']);
 
-Route::middleware(['auth', 'verified'])->prefix('user')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('user')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('user');
     Route::get('/create', [UserController::class, 'create'])->name('create-user');
     Route::post('/store', [UserController::class, 'store'])->name('store-user');
@@ -52,7 +51,7 @@ Route::middleware(['auth', 'verified'])->prefix('user')->group(function () {
     Route::put('/update:{id}', [UserController::class, 'update'])->name('update-user');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('book')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('book')->group(function () {
     Route::get('/', [BukuController::class, 'index'])->name('book-list');
     Route::get('/create', [BukuController::class, 'create'])->name('create-book');
     Route::post('/store', [BukuController::class, 'store'])->name('store-book');
@@ -61,7 +60,7 @@ Route::middleware(['auth', 'verified'])->prefix('book')->group(function () {
     Route::put('/update:{id}', [BukuController::class, 'update'])->name('update-book');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('category')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('category')->group(function () {
     Route::get('/', [KategoriController::class, 'index'])->name('category-list');
     Route::get('/create', [KategoriController::class, 'create'])->name('create-category');
     Route::post('/store', [KategoriController::class, 'store'])->name('store-category');
@@ -70,7 +69,7 @@ Route::middleware(['auth', 'verified'])->prefix('category')->group(function () {
     Route::put('/update:{id}', [KategoriController::class, 'update'])->name('update-category');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('items')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('items')->group(function () {
     Route::get('/', [BarangController::class, 'index'])->name('items-list');
     Route::get('/create', [BarangController::class, 'create'])->name('create-items');
     Route::post('/store', [BarangController::class, 'store'])->name('store-items');
@@ -79,7 +78,7 @@ Route::middleware(['auth', 'verified'])->prefix('items')->group(function () {
     Route::put('/update:{id}', [BarangController::class, 'update'])->name('update-items');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('shipment')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('shipment')->group(function () {
     Route::get('/', function () { 
         return view('admin.shipment.shipment'); 
     })->name('shipment');
@@ -88,7 +87,7 @@ Route::middleware(['auth', 'verified'])->prefix('shipment')->group(function () {
     })->name('shipment-datatables');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('wilayah')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('wilayah')->group(function () {
     Route::get('/axios', [WilayahController::class, 'indexAxios'])->name('wilayah-axios');
     Route::get('/ajax', [WilayahController::class, 'indexAjax'])->name('wilayah-ajax');
     Route::post('/get-kota', [WilayahController::class, 'getKota'])->name('get-kota');
@@ -96,13 +95,13 @@ Route::middleware(['auth', 'verified'])->prefix('wilayah')->group(function () {
     Route::post('/get-kelurahan', [WilayahController::class, 'getKelurahan'])->name('get-kelurahan');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('pos')->group(function () {
+Route::middleware(['verified', 'akses:Admin'])->prefix('pos')->group(function () {
     Route::get('/axios', [POSController::class, 'indexAxios'])->name('pos-axios');
     Route::get('/ajax', [POSController::class, 'indexAjax'])->name('pos-ajax');
     Route::post('/store', [POSController::class, 'store'])->name('pos-store');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('kota')->group(function () {
+Route::middleware(['auth', 'verified', 'akses:Admin'])->prefix('kota')->group(function () {
     Route::get('/', function () { 
         return view('admin.kota.kota'); 
     })->name('kota');

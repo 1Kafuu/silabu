@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -112,13 +113,20 @@ class LoginController extends Controller
         $user->last_login_ip = $request->ip();
         $user->save();
 
+        // Ambil nama role dari tabel role
+        $namaRole = DB::table('role')->where('idrole', $user->role_user[0]->idrole ?? '0')->first();
+
         // 10. Session data (optional)
         $request->session()->put('user', [
             'id' => $user->id,
             'email' => $user->email,
             'name' => $user->name,
+            'role' => $user->role_user[0]->idrole ?? '0',
+            'role_name' => $namaRole->nama_role ?? 'Guest',
             'status' => $user->status,
         ]);
+
+        // dd($request->session()->get('user'));
 
         // Jika user status 'active' (belum verifikasi email) -> redirect ke OTP
         if ($user->status === 'active' && !$user->hasVerifiedEmail()) {

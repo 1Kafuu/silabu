@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendEmail;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,17 @@ class GoogleAuthController extends Controller
             $user->update([
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip(),
+            ]);
+
+            $namaRole = Role::find($user->role_user[0]->idrole ?? null);
+
+            session()->put('user', [
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'status' => $user->status,
+                'role' => $user->role_user[0]->idrole ?? '0',
+                'role_name' => $namaRole->nama_role ?? 'Guest',
             ]);
 
             return $this->redirectBasedOnStatus($user);
