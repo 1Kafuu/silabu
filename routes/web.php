@@ -12,6 +12,7 @@ use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -86,6 +87,15 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('category')->group(functi
     Route::put('/update:{id}', [KategoriController::class, 'update'])->name('update-category');
 });
 
+Route::middleware(['verified', 'akses:Admin'])->prefix('vendor')->group(function() {
+    Route::get('/', [VendorController::class, 'index'])->name('vendor-list');
+    Route::get('/create', [VendorController::class, 'create'])->name('create-vendor');
+    Route::post('/store', [VendorController::class, 'store'])->name('store-vendor');
+    Route::put('/delete:{id}', [VendorController::class, 'delete'])->name('delete-vendor');
+    Route::get('/edit:{id}', [VendorController::class, 'edit'])->name('edit-vendor');
+    Route::put('/update:{id}', [VendorController::class, 'update'])->name('update-vendor');
+});
+
 Route::middleware(['verified', 'akses:Admin'])->prefix('items')->group(function () {
     Route::get('/', [BarangController::class, 'index'])->name('items-list');
     Route::get('/create', [BarangController::class, 'create'])->name('create-items');
@@ -129,7 +139,12 @@ Route::prefix('customer')->group(function () {
 });
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
-    Route::get('/', [CustomerController::class, 'index'])->name('vendor-list');
+    Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
+    Route::get('/menu/create', [VendorController::class, 'createMenu'])->name('create-menu');
+    Route::post('/menu/store', [VendorController::class, 'storeMenu'])->name('store-menu');
+    Route::get('/menu/edit/{id}', [VendorController::class, 'editMenu'])->name('edit-menu');
+    Route::put('/menu/update/{id}', [VendorController::class, 'updateMenu'])->name('update-menu');
+    Route::put('/menu/delete/{id}', [VendorController::class, 'deleteMenu'])->name('delete-menu');
 });
 
 Auth::routes();

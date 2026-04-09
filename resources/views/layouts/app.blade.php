@@ -60,6 +60,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
   <script src="{{ asset('js/preloader.js') }}"></script>
   <script src="{{ asset('js/misc.js') }}"></script>
+   <script src="{{ asset('js/off-canvas.js') }}"></script>
   <script src="{{ asset('js/jquery.cookie.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- endinject -->

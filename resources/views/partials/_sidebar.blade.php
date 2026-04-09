@@ -51,6 +51,12 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ route('vendor-list') }}">
+        <span class="menu-title">Vendor</span>
+        <i class="mdi mdi-truck menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ route('shipment') }}">
         <span class="menu-title">Shipment</span>
         <i class="mdi mdi-cart menu-icon"></i>

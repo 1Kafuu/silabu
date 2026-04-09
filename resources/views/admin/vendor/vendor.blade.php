@@ -1,8 +1,8 @@
-@extends('layouts.vendor')
+@extends('layouts.app')
 
-@section('title', 'Menu Management')
-@section('page-title', 'Menu')
-@section('page-subtitle', 'Menu Lists')
+@section('title', 'Vendor Management')
+@section('page-title', 'Vendors')
+@section('page-subtitle', 'Vendor Lists')
 
 @section('content')
     <div id="notification-container"></div>
@@ -12,10 +12,10 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="card-title mb-0">Menu</h4>
-                        <a href="{{ route('create-menu') }}" class="btn btn-success btn-sm">
-                            <i class="mdi mdi-food"></i>
-                            <span class="mx-2">Add Menu</span>
+                        <h4 class="card-title mb-0">Vendor</h4>
+                        <a href="{{ route('create-vendor') }}" class="btn btn-success btn-sm">
+                            <i class="mdi mdi-truck-plus"></i>
+                            <span class="mx-2">Add Vendor</span>
                         </a>
                     </div>
                     <div class="table-responsive">
@@ -23,40 +23,35 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="10%">Image</th>
-                                    <th width="30%">Menu Name</th>
-                                    <th width="30%">Price</th>
+                                    <th width="30%">Vendor Name</th>
+                                    <th width="30%">Owner</th>
                                     <th width="25%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($menus as $row)
+                                @foreach ($vendors as $row)
                                     <tr>
                                         <td>
                                             {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                                         </td>
                                         <td>
-                                            <img src="{{ asset("storage/" . $row->path_gambar) }}" alt="Menu Image" width="100">
-                                        </td>
+                                            {{ $row->nama_vendor }}
+                                        </td> 
                                         <td>
-                                            {{ $row->nama_menu }}
-                                        </td>
-                                        <td>
-                                            {{ Illuminate\Support\Number::currency($row->harga, 'IDR', 'id') }}
-                                        </td>
+                                            {{ $row->user ? $row->user->name : 'N/A' }}
+                                        </td>                               
                                         <td>
                                             <div class="d-flex justify-end gap-2">
-                                                <a href={{ route('edit-menu', ['id' => $row->idmenu]) }}
+                                                <a href={{ route('edit-vendor', ['id' => $row->idvendor]) }}
                                                     class="btn btn-outline-success btn-sm">
                                                     <i class="mdi mdi-account-edit"></i>
                                                     <span>Edit</span>
                                                 </a>
-                                                <form method="POST"
-                                                    action="{{ route('delete-menu', ['id' => $row->idmenu   ]) }}">
+                                                <form method="POST" action="{{ route('delete-vendor', ['id' => $row->idvendor]) }}">
                                                     @csrf
                                                     @method('PUT')
                                                     <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')">
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus vendor ini?')">
                                                         <i class="mdi mdi-account-remove"></i>
                                                         <span>Delete</span>
                                                     </button>

@@ -68,10 +68,10 @@ class OTPController extends Controller
                         $redirectRoute = 'dashboard';
                         break;
                     case 'Customer':
-                        $redirectRoute = 'customer.dashboard';
+                        $redirectRoute = 'customer-list';
                         break;
                     case 'Vendor':
-                        $redirectRoute = 'vendor-list';
+                        $redirectRoute = 'menu-list';
                         break;
                     default:
                         $redirectRoute = 'dashboard';

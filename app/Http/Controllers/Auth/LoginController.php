@@ -166,7 +166,7 @@ class LoginController extends Controller
             return match ($roleName) {
                 'Admin' => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
                 'Customer' => redirect()->intended(route('customer-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
-                'Vendor' => redirect()->intended(route('vendor-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Vendor' => redirect()->intended(route('menu-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
                 default => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
             };
         }

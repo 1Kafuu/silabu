@@ -9,16 +9,15 @@
         </div>
         <div class="nav-profile-text d-flex flex-column">
           <span class="font-weight-bold mb-2">{{ auth()->user()?->name }}</span>
-          <span class="text-secondary text-small">Project Manager</span>
+          <span class="text-secondary text-small">{{session('user.role_name')}}</span>
         </div>
         <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{route('dashboard')}}">
-        <span class="menu-title">Dashboard</span>
-        <i class="mdi mdi-home menu-icon"></i>
+      <a class="nav-link" href="{{route('menu-list')}}">
+        <span class="menu-title">Menu</span>
+        <i class="mdi mdi-food-fork-drink menu-icon"></i>
       </a>
     </li>
-  </ul>
 </nav>
