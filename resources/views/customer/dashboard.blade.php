@@ -10,8 +10,54 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h4 class="card-title">Menu</h4>
-                    <div class="form-group">
-                        <!-- Card-Menu dengan dropdown memilih vendor -->
+                    
+                    <!-- Vendor Filter Dropdown -->
+                    <div class="form-group mb-3">
+                        <label for="vendor-filter" class="form-label">Pilih Vendor:</label>
+                        <select id="vendor-filter" class="form-select">
+                            <option value="all">Semua Vendor</option>
+                            @foreach ($vendors as $vendor)
+                                <option value="{{ $vendor->idvendor }}">{{ $vendor->nama_vendor }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <!-- Menu Cards Container -->
+                    <div id="menu-cards-container" class="row">
+                        @if ($menus->count() > 0)
+                            @foreach ($menus as $menu)
+                                <div class="col-md-4 mb-3 menu-card" data-vendor-id="{{ $menu->idvendor }}">
+                                    <div class="card shadow-sm menu-card-inner" style="height: 100%;">
+                                        <img src="{{ asset('storage/' . $menu->path_gambar) }}" 
+                                             class="card-img-top" 
+                                             alt="{{ $menu->nama_menu }}" 
+                                             style="height: 150px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ $menu->nama_menu }}</h5>
+                                            <p class="card-text text-muted small">
+                                                <i class="mdi mdi-store"></i> {{ $menu->vendor->nama_vendor }}
+                                            </p>
+                                            <h4 class="text-primary fw-bold">
+                                                {{ Illuminate\Support\Number::currency($menu->harga, 'IDR', 'id') }}
+                                            </h4>
+                                            <button type="button" class="btn btn-primary w-100 btn-tambah-keranjang" 
+                                                    data-idmenu="{{ $menu->idmenu }}"
+                                                    data-nama="{{ $menu->nama_menu }}"
+                                                    data-harga="{{ $menu->harga }}"
+                                                    data-vendor="{{ $menu->vendor->nama_vendor }}">
+                                                <i class="mdi mdi-plus"></i> Tambah
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="col-12">
+                                <div class="alert alert-info text-center">
+                                    Tidak ada menu tersedia dari vendor aktif.
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -57,17 +103,30 @@
                                 <tr>
                                     <th>ID Penjualan</th>
                                     <th>Waktu</th>
-                                    <th>Kasir</th>
+                                    <th>Metode Pembayaran</th>
+                                    <th>Status Bayar</th>
                                     <th>Total Transaksi</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($pesanan as $row)
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td class="font-weight-bold text-info"></td>
+                                        <td>{{ $row->idpesanan }}</td>
+                                        <td>{{ $row->created_at->format('d M Y, H:i') }}</td>
+                                        <td>{{ $row->metode_bayar }}</td>
+                                        <td>
+                                            @if ($row->status_bayar === 'pending')
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            @elseif ($row->status_bayar === 'paid')
+                                                <span class="badge bg-success">Paid</span>
+                                            @elseif ($row->status_bayar === 'failed')
+                                                <span class="badge bg-danger">Failed</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ ucfirst($row->status_bayar) }}</span>
+                                            @endif
+                                        <td class="font-weight-bold text-info">{{ Illuminate\Support\Number::currency($row->total, 'IDR', 'id') }}</td>
                                     </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -79,89 +138,12 @@
 
 @push('js-page')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
     <script>
+        // Keranjang belanja
         let keranjang = [];
 
-        function updateInfoBarang() {
-            const val = $('#pilih_barang').val();
-            const opt = $('#list_barang option[value="' + val + '"]');
-
-            if (opt.length > 0) {
-                const nama = opt.data('nama');
-                const harga = opt.data('harga');
-
-                $('#info_nama').val(nama);
-                $('#info_harga').val('Rp ' + harga.toLocaleString('id-ID'));
-
-                // Fokuskan ke Qty jika kode valid
-                if ($('#jumlah_barang').val() == 0) {
-                    $('#jumlah_barang').val(1).focus();
-                }
-            } else {
-                $('#info_nama').val('');
-                $('#info_harga').val('');
-            }
-            cekInput();
-        }
-
-        function handleEnter(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const btn = $('#btn-tambah');
-                if (!btn.prop('disabled')) {
-                    tambahKeKeranjang();
-                    $('#pilih_barang').focus();
-                }
-            }
-        }
-
-        function cekInput() {
-            const kode = $('#pilih_barang').val();
-            const qty = parseInt($('#jumlah_barang').val());
-            const valid = $('#list_barang option[value="' + kode + '"]').length > 0;
-
-            $('#btn-tambah').prop('disabled', !(valid && qty > 0));
-        }
-
-        function tambahKeKeranjang() {
-            const inputKode = $('#pilih_barang');
-            const inputJumlah = $('#jumlah_barang');
-            const kode = inputKode.val();
-            const qtyInput = parseInt(inputJumlah.val());
-
-            // Cari data barang di datalist berdasarkan value input
-            const opt = $('#list_barang option[value="' + kode + '"]');
-
-            if (opt.length === 0 || qtyInput <= 0) return;
-
-            const item = {
-                id_barang: kode,
-                nama: opt.data('nama'),
-                harga: parseInt(opt.data('harga')),
-                qty: qtyInput,
-                subtotal: parseInt(opt.data('harga')) * qtyInput
-            };
-
-            const existing = keranjang.find(i => i.id_barang === item.id_barang);
-            if (existing) {
-                existing.qty += qtyInput;
-                existing.subtotal = existing.qty * existing.harga;
-            } else {
-                keranjang.push(item);
-            }
-
-            renderKeranjang();
-
-            // Reset Form Input
-            inputKode.val("");
-            $('#info_nama').val("");
-            $('#info_harga').val("");
-            inputJumlah.val(0);
-            $('#btn-tambah').prop('disabled', true);
-
-            inputKode.focus();
-        }
-
+        // Render tampilan keranjang
         function renderKeranjang() {
             const listDiv = document.getElementById('keranjang-list');
             const btnBayar = document.getElementById('btn-bayar');
@@ -172,7 +154,7 @@
                 total += item.subtotal;
                 html += `<div style="padding: 8px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600;">${item.nama}</div>
+                            <div style="font-weight: 600;">${item.nama_menu}</div>
                             <div style="color: #666; font-size: 0.85rem;">Rp ${item.harga.toLocaleString('id-ID')}</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 4px; margin: 0 8px;">
@@ -189,6 +171,7 @@
             btnBayar.disabled = keranjang.length === 0;
         }
 
+        // Update quantity item di keranjang
         function updateQty(index, delta) {
             const item = keranjang[index];
             if (!item) return;
@@ -199,11 +182,13 @@
             renderKeranjang();
         }
 
+        // Hapus item dari keranjang
         function hapusItem(index) {
             keranjang.splice(index, 1);
             renderKeranjang();
         }
 
+        // Batalkan transaksi
         function batalkanTransaksi() {
             if (keranjang.length === 0) return;
             Swal.fire({
@@ -220,36 +205,181 @@
             });
         }
 
+        // Set tombol loading
         function setButtonLoading(btn, text) {
             $(btn).prop('disabled', true);
             $(btn).data('original-text', $(btn).html());
             $(btn).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + text);
         }
 
+        // Reset tombol dari loading
         function resetButtonLoading(btn) {
             $(btn).prop('disabled', false);
             $(btn).html($(btn).data('original-text'));
         }
 
-        async function prosesTransaksi(btn) {
-            const totalHarga = keranjang.reduce((sum, item) => sum + item.subtotal, 0);
-            setButtonLoading(btn, 'Menyimpan...');
+         // Proses transaksi
+          async function prosesTransaksi(btn) {
+              const totalHarga = keranjang.reduce((sum, item) => sum + item.subtotal, 0);
+              setButtonLoading(btn, 'Menyimpan...');
+  
+              try {
+                  const response = await axios.post("{{ route('store-pesanan') }}", {
+                      nama: 'PESANAN-' + Date.now(),
+                      total: totalHarga,
+                      metode_bayar: 'midtrans',
+                      status_bayar: 'pending',
+                      iduser: "{{ auth()->check() ? auth()->user()->id : '' }}",
+                      items: keranjang,
+                      _token: "{{ csrf_token() }}"
+                  });
+  
+                  if (response.data.success) {
+                      // Clear cart after successful order
+                      keranjang = [];
+                      renderKeranjang();
+                      
+                      // Use Midtrans Snap JS to process payment
+                      if (response.data.snap_token) {
+                          // Call snap.pay with the token
+                          snap.pay(response.data.snap_token, {
+                              // Optional
+                              onSuccess: function(result){
+                                  // Payment succeeded
+                                  Swal.fire({
+                                      icon: 'success',
+                                      title: 'Pembayaran Berhasil!',
+                                      text: 'Transaksi ID: ' + result.order_id,
+                                      timer: 2000,
+                                      showConfirmButton: false
+                                  }).then(() => {
+                                      // Reload page or update UI
+                                      location.reload();
+                                  });
+                              },
+                              // Optional
+                              onPending: function(result){
+                                  // Payment pending (user didn't complete payment)
+                                  Swal.fire({
+                                      icon: 'warning',
+                                      title: 'Pembayaran Pending',
+                                      text: 'Transaksi ID: ' + result.order_id + '. Silakan selesaikan pembayaran.',
+                                      timer: 2500,
+                                      showConfirmButton: false
+                                  });
+                              },
+                              // Optional
+                              onError: function(result){
+                                  // Payment failed
+                                  Swal.fire({
+                                      icon: 'error',
+                                      title: 'Pembayaran Gagal',
+                                      text: 'Terjadi kesalahan saat memproses pembayaran.',
+                                      timer: 2000,
+                                      showConfirmButton: false
+                                  });
+                              }
+                          });
+                      } else {
+                          // Fallback if no snap token
+                          if (response.data.notification) {
+                              const tempDiv = document.createElement('div');
+                              tempDiv.innerHTML = response.data.notification;
+                              const message = tempDiv.querySelector('.swal2-popup')?.innerText || 'Pesanan berhasil dibuat!';
+                              Swal.fire('Berhasil!', message, 'success').then(() => location.reload());
+                          }
+                      }
+                  } else {
+                      // Show notification for errors
+                      if (response.data.notification) {
+                          const tempDiv = document.createElement('div');
+                          tempDiv.innerHTML = response.data.notification;
+                          const message = tempDiv.querySelector('.swal2-popup')?.innerText || 'Gagal membuat pesanan!';
+                          Swal.fire('Gagal!', message, 'error');
+                      } else {
+                          Swal.fire('Gagal!', 'Gagal membuat pesanan!', 'error');
+                      }
+                  }
+              } catch (error) {
+                  console.error('Error:', error);
+                  Swal.fire('Gagal!', 'Terjadi kesalahan sistem', 'error');
+              } finally {
+                  resetButtonLoading(btn);
+              }
+          }
 
-            try {
-                const response = await axios.post("{{ route('pos-store') }}", {
-                    total_harga: totalHarga,
-                    items: keranjang,
-                    _token: "{{ csrf_token() }}"
+        // Filter menu berdasarkan vendor
+        function filterMenusByVendor(vendorId) {
+            if (vendorId === 'all') {
+                $('.menu-card').show();
+            } else {
+                $('.menu-card').each(function() {
+                    const cardVendorId = $(this).data('vendor-id');
+                    if (cardVendorId == vendorId) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
                 });
-
-                if (response.data.status === 'success') {
-                    Swal.fire('Berhasil!', response.data.msg, 'success').then(() => location.reload());
-                }
-            } catch (error) {
-                Swal.fire('Gagal!', 'Terjadi kesalahan sistem', 'error');
-            } finally {
-                resetButtonLoading(btn);
+            }
+            
+            // Hapus pesan kosong sebelumnya
+            $('.empty-message').remove();
+            
+            // Cek apakah ada menu yang tampil
+            const visibleCount = $('.menu-card:visible').length;
+            if (visibleCount === 0) {
+                $('#menu-cards-container').append('<div class="col-12 text-center py-4 empty-message"><p class="text-muted">Tidak ada menu dari vendor terpilih</p></div>');
             }
         }
+        
+        // Inisialisasi saat halaman dimuat
+        $(document).ready(function() {
+            // Filter menu berdasarkan vendor
+            $('#vendor-filter').on('change', function() {
+                filterMenusByVendor($(this).val());
+            });
+            
+            // Tambah menu ke keranjang
+            $(document).on('click', '.btn-tambah-keranjang', function() {
+                const idmenu = $(this).data('idmenu');
+                const nama_menu = $(this).data('nama');
+                const harga = parseInt($(this).data('harga'));
+                const nama_vendor = $(this).data('vendor');
+                
+                // Cek apakah item sudah ada di keranjang
+                const existing = keranjang.find(item => item.idmenu === idmenu);
+                
+                if (existing) {
+                    existing.qty += 1;
+                    existing.subtotal = existing.qty * existing.harga;
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Item Diperbarui!',
+                        text: `Jumlah ${nama_menu} ditambah di keranjang.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    keranjang.push({
+                        idmenu: idmenu,
+                        nama_menu: nama_menu,
+                        harga: harga,
+                        qty: 1,
+                        subtotal: harga,
+                        nama_vendor: nama_vendor
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Ditambahkan!',
+                        text: `${nama_menu} ditambahkan ke keranjang.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+                
+                renderKeranjang();
+            });
+        });
     </script>
 @endpush

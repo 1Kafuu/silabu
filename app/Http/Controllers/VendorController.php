@@ -6,7 +6,7 @@ use App\Models\Menu;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class VendorController extends Controller
 {
@@ -122,7 +122,9 @@ class VendorController extends Controller
 
     public function menu()
     {
-        $menus = Menu::with('vendor.user')->get();
+        $menus = Menu::whereHas('vendor', function ($query) {
+            $query->where('iduser', Auth::id());
+        })->with('vendor.user')->get();
         return view('vendor.dashboard', compact('menus'));
     }
 
@@ -187,16 +189,16 @@ class VendorController extends Controller
         }
     }
 
-    
+
     public function deleteMenu($id)
     {
         $menu = Menu::findOrFail($id);
-        
+
         // Delete image from storage if exists
         if ($menu->path_gambar && file_exists(storage_path('app/public/' . $menu->path_gambar))) {
             unlink(storage_path('app/public/' . $menu->path_gambar));
         }
-        
+
         $menu->delete();
 
         return redirect()->route('menu-list')->with('success', 'Menu deleted successfully!');
@@ -209,7 +211,7 @@ class VendorController extends Controller
             'harga' => 'required|numeric|min:0',
             'path_gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         $idvendor = auth()->user()->vendor->idvendor ?? null;
         \Log::info('ID Vendor: ' . $idvendor);
 
@@ -272,6 +274,6 @@ class VendorController extends Controller
         }
     }
 
-    
-    
+
+
 }

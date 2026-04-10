@@ -136,15 +136,12 @@ Route::middleware(['auth', 'verified', 'akses:Admin'])->prefix('kota')->group(fu
 
 Route::prefix('customer')->group(function () {
     Route::get('/', [CustomerController::class, 'index'])->name('customer-list');
+    Route::post('/store', [CustomerController::class, 'store'])->name('store-pesanan');
 });
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
-    Route::get('/menu/create', [VendorController::class, 'createMenu'])->name('create-menu');
-    Route::post('/menu/store', [VendorController::class, 'storeMenu'])->name('store-menu');
-    Route::get('/menu/edit/{id}', [VendorController::class, 'editMenu'])->name('edit-menu');
-    Route::put('/menu/update/{id}', [VendorController::class, 'updateMenu'])->name('update-menu');
-    Route::put('/menu/delete/{id}', [VendorController::class, 'deleteMenu'])->name('delete-menu');
+    Route::post('/menu/store', [VendorController::class, 'store'])->name('store-menu');
 });
 
 Auth::routes();
