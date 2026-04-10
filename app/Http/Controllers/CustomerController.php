@@ -7,6 +7,7 @@ use App\Models\Pesanan;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
@@ -14,11 +15,21 @@ class CustomerController extends Controller
     {
         // Get all active vendors
         $vendors = Vendor::orderBy('nama_vendor', 'asc')->get();
-        $pesanan = Pesanan::with('user')->orderBy('idpesanan', 'asc')->get();
-        
+        if (Auth::check()) {
+            // Jika login, ambil berdasarkan id user tersebut
+            $pesanan = Pesanan::with('user')
+                ->where('iduser', Auth::id())
+                ->orderBy('idpesanan', 'asc')
+                ->get();
+        } else {
+            $pesanan = Pesanan::where('nama','like', 'GUEST-%') // Sesuaikan kolomnya, misal 'nama_pemesan'
+                ->orderBy('idpesanan', 'asc')
+                ->get();
+        }
+
         // Get all menus from active vendors
         $menus = Menu::with('vendor')->orderBy('idmenu', 'asc')->get();
-        
+
         return view('customer.dashboard', compact('vendors', 'menus', 'pesanan'));
     }
 
@@ -49,7 +60,7 @@ class CustomerController extends Controller
                 $lastPesanan = Pesanan::where('nama', 'like', 'GUEST-%')->orderBy('idpesanan', 'desc')->first();
                 if ($lastPesanan) {
                     // Extract number from GUEST-XXX
-                    $lastNumber = (int)substr($lastPesanan->nama, 6);
+                    $lastNumber = (int) substr($lastPesanan->nama, 6);
                     $nextNumber = $lastNumber + 1;
                 } else {
                     $nextNumber = 1;
@@ -78,7 +89,7 @@ class CustomerController extends Controller
 
         // Midtrans Configuration
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config:: $isProduction = config('midtrans.isProduction');
+        \Midtrans\Config::$isProduction = config('midtrans.isProduction');
         \Midtrans\Config::$isSanitized = config('midtrans.isSanitized');
         \Midtrans\Config::$is3ds = config('midtrans.is3ds');
 
@@ -120,7 +131,7 @@ class CustomerController extends Controller
 
             // Get the updated pesanan with midtrans token
             $result->loadMissing('user');
-            
+
             return response()->json([
                 'success' => true,
                 'notification' => $notificationHTML,

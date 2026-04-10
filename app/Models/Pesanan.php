@@ -15,9 +15,4 @@ class Pesanan extends Model
     {
         return $this->belongsTo(User::class, 'iduser', 'id');
     }
-
-    public function getUserAttribute()
-    {
-        return $this->user;
-    }
 }

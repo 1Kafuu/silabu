@@ -106,25 +106,34 @@
                                     <th>Metode Pembayaran</th>
                                     <th>Status Bayar</th>
                                     <th>Total Transaksi</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($pesanan as $row)
                                     <tr>
-                                        <td>{{ $row->idpesanan }}</td>
+                                        <td>{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</td>
                                         <td>{{ $row->created_at->format('d M Y, H:i') }}</td>
                                         <td>{{ $row->metode_bayar }}</td>
                                         <td>
                                             @if ($row->status_bayar === 'pending')
                                                 <span class="badge bg-warning text-dark">Pending</span>
-                                            @elseif ($row->status_bayar === 'paid')
+                                            @elseif ($row->status_bayar === 'success')
                                                 <span class="badge bg-success">Paid</span>
                                             @elseif ($row->status_bayar === 'failed')
                                                 <span class="badge bg-danger">Failed</span>
                                             @else
                                                 <span class="badge bg-secondary">{{ ucfirst($row->status_bayar) }}</span>
                                             @endif
+                                        </td>                                    
                                         <td class="font-weight-bold text-info">{{ Illuminate\Support\Number::currency($row->total, 'IDR', 'id') }}</td>
+                                        <td>
+                                            @if ($row->status_bayar === 'pending')
+                                                <button type="button" class="btn btn-sm btn-primary" onclick="bayarPesanan({{ $row->idpesanan }}, this)">Bayar</button>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -238,59 +247,101 @@
                       // Clear cart after successful order
                       keranjang = [];
                       renderKeranjang();
-                      
+  
                       // Use Midtrans Snap JS to process payment
                       if (response.data.snap_token) {
                           // Call snap.pay with the token
                           snap.pay(response.data.snap_token, {
-                              // Optional
                               onSuccess: function(result){
-                                  // Payment succeeded
+                                  console.log('Midtrans onSuccess result:', result);
+                                  axios.post("{{ route('midtrans.update-status') }}", {
+                                      order_id: result.order_id,
+                                      status_bayar: 'success',
+                                      metode_bayar: result.payment_type || 'midtrans',
+                                      _token: "{{ csrf_token() }}"
+                                  }).then(() => {
+                                      Swal.fire({
+                                          icon: 'success',
+                                          title: 'Pembayaran Berhasil!',
+                                          text: 'Transaksi ID: ' + result.order_id + ' | Metode: ' + (result.payment_type || 'midtrans'),
+                                          timer: 2500,
+                                          showConfirmButton: false
+                                      }).then(() => {
+                                          location.reload();
+                                      });
+                                  }).catch(() => {
+                                      Swal.fire({
+                                          icon: 'success',
+                                          title: 'Pembayaran Berhasil!',
+                                          text: 'Transaksi ID: ' + result.order_id,
+                                          timer: 2000,
+                                          showConfirmButton: false
+                                      }).then(() => {
+                                          location.reload();
+                                      });
+                                  });
+                              },
+                              onPending: function(result){
+                                  console.log('Midtrans onPending result:', result);
+                                  axios.post("{{ route('midtrans.update-status') }}", {
+                                      order_id: result.order_id,
+                                      status_bayar: 'pending',
+                                      metode_bayar: 'midtrans',
+                                      _token: "{{ csrf_token() }}"
+                                  }).finally(() => {
+                                      Swal.fire({
+                                          icon: 'warning',
+                                          title: 'Pembayaran Pending',
+                                          text: 'Transaksi ID: ' + result.order_id + '. Silakan selesaikan pembayaran.',
+                                          timer: 2500,
+                                          showConfirmButton: false
+                                      }).then(() => {
+                                          location.reload();
+                                      });
+                                  });
+                              },
+                              onError: function(result){
+                                  console.log('Midtrans onError result:', result);
+                                  axios.post("{{ route('midtrans.update-status') }}", {
+                                      order_id: result.order_id,
+                                      status_bayar: 'failed',
+                                      metode_bayar: result.payment_type || 'midtrans',
+                                      _token: "{{ csrf_token() }}"
+                                  }).finally(() => {
+                                      Swal.fire({
+                                          icon: 'error',
+                                          title: 'Pembayaran Gagal',
+                                          text: 'Terjadi kesalahan saat memproses pembayaran.',
+                                          timer: 2000,
+                                          showConfirmButton: false
+                                      }).then(() => {
+                                          location.reload();
+                                      });
+                                  });
+                              },
+                              onClose: function(){
                                   Swal.fire({
-                                      icon: 'success',
-                                      title: 'Pembayaran Berhasil!',
-                                      text: 'Transaksi ID: ' + result.order_id,
+                                      icon: 'info',
+                                      title: 'Pembayaran Dibatalkan',
+                                      text: 'Anda menutup popup pembayaran. Status tetap pending.',
                                       timer: 2000,
                                       showConfirmButton: false
                                   }).then(() => {
-                                      // Reload page or update UI
                                       location.reload();
-                                  });
-                              },
-                              // Optional
-                              onPending: function(result){
-                                  // Payment pending (user didn't complete payment)
-                                  Swal.fire({
-                                      icon: 'warning',
-                                      title: 'Pembayaran Pending',
-                                      text: 'Transaksi ID: ' + result.order_id + '. Silakan selesaikan pembayaran.',
-                                      timer: 2500,
-                                      showConfirmButton: false
-                                  });
-                              },
-                              // Optional
-                              onError: function(result){
-                                  // Payment failed
-                                  Swal.fire({
-                                      icon: 'error',
-                                      title: 'Pembayaran Gagal',
-                                      text: 'Terjadi kesalahan saat memproses pembayaran.',
-                                      timer: 2000,
-                                      showConfirmButton: false
                                   });
                               }
                           });
                       } else {
-                          // Fallback if no snap token
                           if (response.data.notification) {
                               const tempDiv = document.createElement('div');
                               tempDiv.innerHTML = response.data.notification;
                               const message = tempDiv.querySelector('.swal2-popup')?.innerText || 'Pesanan berhasil dibuat!';
                               Swal.fire('Berhasil!', message, 'success').then(() => location.reload());
+                          } else {
+                              Swal.fire('Berhasil!', 'Pesanan berhasil dibuat!', 'success').then(() => location.reload());
                           }
                       }
                   } else {
-                      // Show notification for errors
                       if (response.data.notification) {
                           const tempDiv = document.createElement('div');
                           tempDiv.innerHTML = response.data.notification;
@@ -303,6 +354,107 @@
               } catch (error) {
                   console.error('Error:', error);
                   Swal.fire('Gagal!', 'Terjadi kesalahan sistem', 'error');
+              } finally {
+                  resetButtonLoading(btn);
+              }
+          }
+
+          async function bayarPesanan(orderId, btn) {
+              setButtonLoading(btn, 'Mempersiapkan...');
+
+              try {
+                  const response = await axios.post("{{ route('midtrans.pay') }}", {
+                      order_id: orderId,
+                      _token: "{{ csrf_token() }}"
+                  });
+
+                  if (response.data.success && response.data.snap_token) {
+                      snap.pay(response.data.snap_token, {
+                          onSuccess: function(result){
+                              console.log('Midtrans onSuccess result:', result);
+                              axios.post("{{ route('midtrans.update-status') }}", {
+                                  order_id: result.order_id,
+                                  status_bayar: 'success',
+                                  metode_bayar: result.payment_type || 'midtrans',
+                                  _token: "{{ csrf_token() }}"
+                              }).then(() => {
+                                  Swal.fire({
+                                      icon: 'success',
+                                      title: 'Pembayaran Berhasil!',
+                                      text: 'Transaksi ID: ' + result.order_id + ' | Metode: ' + (result.payment_type || 'midtrans'),
+                                      timer: 2500,
+                                      showConfirmButton: false
+                                  }).then(() => {
+                                      location.reload();
+                                  });
+                              }).catch(() => {
+                                  Swal.fire({
+                                      icon: 'success',
+                                      title: 'Pembayaran Berhasil!',
+                                      text: 'Transaksi ID: ' + result.order_id,
+                                      timer: 2000,
+                                      showConfirmButton: false
+                                  }).then(() => {
+                                      location.reload();
+                                  });
+                              });
+                          },
+                          onPending: function(result){
+                              console.log('Midtrans onPending result:', result);
+                              axios.post("{{ route('midtrans.update-status') }}", {
+                                  order_id: result.order_id,
+                                  status_bayar: 'pending',
+                                  metode_bayar: 'midtrans',
+                                  _token: "{{ csrf_token() }}"
+                              }).finally(() => {
+                                  Swal.fire({
+                                      icon: 'warning',
+                                      title: 'Pembayaran Pending',
+                                      text: 'Transaksi ID: ' + result.order_id + '. Silakan selesaikan pembayaran.',
+                                      timer: 2500,
+                                      showConfirmButton: false
+                                  }).then(() => {
+                                      location.reload();
+                                  });
+                              });
+                          },
+                          onError: function(result){
+                              console.log('Midtrans onError result:', result);
+                              axios.post("{{ route('midtrans.update-status') }}", {
+                                  order_id: result.order_id,
+                                  status_bayar: 'failed',
+                                  metode_bayar: result.payment_type || 'midtrans',
+                                  _token: "{{ csrf_token() }}"
+                              }).finally(() => {
+                                  Swal.fire({
+                                      icon: 'error',
+                                      title: 'Pembayaran Gagal',
+                                      text: 'Terjadi kesalahan saat memproses pembayaran.',
+                                      timer: 2000,
+                                      showConfirmButton: false
+                                  }).then(() => {
+                                      location.reload();
+                                  });
+                              });
+                          },
+                          onClose: function(){
+                              Swal.fire({
+                                  icon: 'info',
+                                  title: 'Pembayaran Dibatalkan',
+                                  text: 'Anda menutup popup pembayaran. Status tetap pending.',
+                                  timer: 2000,
+                                  showConfirmButton: false
+                              }).then(() => {
+                                  location.reload();
+                              });
+                          }
+                      });
+                  } else {
+                      Swal.fire('Gagal!', response.data.message || 'Gagal memulai pembayaran.', 'error');
+                  }
+              } catch (error) {
+                  console.error('Error:', error);
+                  Swal.fire('Gagal!', 'Terjadi kesalahan saat memproses pembayaran.', 'error');
               } finally {
                   resetButtonLoading(btn);
               }

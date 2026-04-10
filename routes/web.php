@@ -14,6 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WilayahController;
+use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Socialite;
@@ -138,6 +139,16 @@ Route::prefix('customer')->group(function () {
     Route::get('/', [CustomerController::class, 'index'])->name('customer-list');
     Route::post('/store', [CustomerController::class, 'store'])->name('store-pesanan');
 });
+
+// Midtrans Callback URL
+// This route receives payment notifications from Midtrans
+Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans.callback');
+
+// Midtrans pay pending order
+Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
+
+// Midtrans Update Status from frontend snap result
+Route::post('/midtrans/update-status', [MidtransController::class, 'updateStatus'])->name('midtrans.update-status');
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
