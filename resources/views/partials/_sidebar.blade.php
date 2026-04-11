@@ -9,7 +9,7 @@
         </div>
         <div class="nav-profile-text d-flex flex-column">
           <span class="font-weight-bold mb-2">{{ auth()->user()?->name }}</span>
-          <span class="text-secondary text-small">Project Manager</span>
+          <span class="text-secondary text-small">{{session('user.role_name')}}</span>
         </div>
         <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
       </a>
@@ -24,6 +24,12 @@
       <a class="nav-link" href="{{ route('user') }}">
         <span class="menu-title">User Management</span>
         <i class="mdi mdi-account-settings menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('role') }}">
+        <span class="menu-title">Role Management</span>
+        <i class="mdi mdi-shield-edit menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
@@ -45,6 +51,12 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ route('vendor-list') }}">
+        <span class="menu-title">Vendor</span>
+        <i class="mdi mdi-truck menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ route('shipment') }}">
         <span class="menu-title">Shipment</span>
         <i class="mdi mdi-cart menu-icon"></i>
@@ -54,6 +66,30 @@
       <a class="nav-link" href="{{ route('kota') }}">
         <span class="menu-title">Kota</span>
         <i class="mdi mdi-city menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('wilayah-ajax') }}">
+        <span class="menu-title">Wilayah (Ajax)</span>
+        <i class="mdi mdi-city-variant menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('wilayah-axios') }}">
+        <span class="menu-title">Wilayah (Axios)</span>
+        <i class="mdi mdi-city-variant menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('pos-ajax') }}">
+        <span class="menu-title">Point Of Sales (Ajax)</span>
+        <i class="mdi mdi-cart-arrow-down menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('pos-axios') }}">
+        <span class="menu-title">Point Of Sales (Axios)</span>
+        <i class="mdi mdi-cart-arrow-down menu-icon"></i>
       </a>
     </li>
   </ul>

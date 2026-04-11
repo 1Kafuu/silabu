@@ -1,0 +1,94 @@
+@extends('layouts.vendor')
+
+@section('title', 'Menu Management')
+@section('page-title', 'Menu')
+@section('page-subtitle', 'Menu Lists')
+
+@section('content')
+    <div id="notification-container"></div>
+
+    <div class="row">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title mb-0">Menu</h4>
+                        <a href="{{ route('create-menu') }}" class="btn btn-success btn-sm">
+                            <i class="mdi mdi-food"></i>
+                            <span class="mx-2">Add Menu</span>
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="10%">Image</th>
+                                    <th width="30%">Menu Name</th>
+                                    <th width="30%">Price</th>
+                                    <th width="25%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($menus as $row)
+                                    <tr>
+                                        <td>
+                                            {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                                        </td>
+                                        <td>
+                                            <img src="{{ asset("storage/" . $row->path_gambar) }}" alt="Menu Image" width="100">
+                                        </td>
+                                        <td>
+                                            {{ $row->nama_menu }}
+                                        </td>
+                                        <td>
+                                            {{ Illuminate\Support\Number::currency($row->harga, 'IDR', 'id') }}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-end gap-2">
+                                                <a href={{ route('edit-menu', ['id' => $row->idmenu]) }}
+                                                    class="btn btn-outline-success btn-sm">
+                                                    <i class="mdi mdi-account-edit"></i>
+                                                    <span>Edit</span>
+                                                </a>
+                                                <form method="POST"
+                                                    action="{{ route('delete-menu', ['id' => $row->idmenu   ]) }}">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')">
+                                                        <i class="mdi mdi-account-remove"></i>
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('js-page')
+    <script>
+        $(document).ready(function () {
+            console.log('Document ready');
+            let notification = sessionStorage.getItem('notification');
+            if (notification) {
+                $('#notification-container').html(notification);
+                sessionStorage.removeItem('notification');
+
+                setTimeout(function () {
+                    $('.alert').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+        });
+    </script>
+@endpush

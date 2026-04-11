@@ -54,8 +54,34 @@ class OTPController extends Controller
                 'status' => 'verified'
             ]);
 
-            // Redirect ke halaman dashboard
-            return redirect()->route('dashboard')
+            // Load relasi role
+            $user->load('role_user.role');
+
+            // Dapatkan role aktif
+            $activeRole = $user->role_user->where('status', 'active')->first();
+
+            // Tentukan redirect berdasarkan role
+            if ($activeRole && $activeRole->role) {
+                $roleName = $activeRole->role->nama_role;
+                switch ($roleName) {
+                    case 'Admin':
+                        $redirectRoute = 'dashboard';
+                        break;
+                    case 'Customer':
+                        $redirectRoute = 'customer-list';
+                        break;
+                    case 'Vendor':
+                        $redirectRoute = 'menu-list';
+                        break;
+                    default:
+                        $redirectRoute = 'dashboard';
+                }
+            } else {
+                $redirectRoute = 'dashboard';
+            }
+
+            // Redirect ke halaman dashboard sesuai role
+            return redirect()->route($redirectRoute)
                 ->with('success', 'Email anda berhasil diverifikasi!');
 
         } catch (\Exception $e) {

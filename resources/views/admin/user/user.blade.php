@@ -42,9 +42,14 @@
                                         </td>
                                         <td>
                                             <div class="d-flex justify-end gap-2">
+                                                <a href={{ route('manage-role', ['id' => $row->id]) }}
+                                                    class="btn btn-outline-info btn-sm">
+                                                    <i class="mdi mdi-shield-account"></i>
+                                                    <span>Assign Role</span>
+                                                </a>
                                                 <a href={{ route('edit-user', ['id' => $row->id]) }}
                                                     class="btn btn-outline-success btn-sm">
-                                                    <i c{lass="mdi mdi-account-edit"></i>
+                                                    <i class="mdi mdi-account-edit"></i>
                                                     <span>Edit</span>
                                                 </a>
                                                 <form method="POST" action="{{ route('delete-user', ['id' => $row->id]) }}">

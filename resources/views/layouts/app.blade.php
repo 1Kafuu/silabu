@@ -3,6 +3,7 @@
 
 <head>
   <!-- Required meta tags -->
+   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>@yield('title') | Purple Admin</title>
@@ -59,11 +60,10 @@
   <script src="{{ asset('js/jquery-4.0.0.min.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
   <script src="{{ asset('js/preloader.js') }}"></script>
-  <script src="{{ asset('js/off-canvas.js') }}"></script>
   <script src="{{ asset('js/misc.js') }}"></script>
-  <script src="{{ asset('js/settings.js') }}"></script>
-  <script src="{{ asset('js/todolist.js') }}"></script>
+   <script src="{{ asset('js/off-canvas.js') }}"></script>
   <script src="{{ asset('js/jquery.cookie.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- endinject -->
   <!-- Custom js for this page -->
   @stack('js-page')

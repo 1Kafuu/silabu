@@ -41,10 +41,14 @@ $.fn.formHandler = function (options) {
 
             button.html(settings.loadingText).prop("disabled", true);
 
+            const formData = new FormData(form[0]);
+
             $.ajax({
                 url: form.attr("action"),
                 method: form.attr("method"),
-                data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     button.html(originalText).prop("disabled", false);
 

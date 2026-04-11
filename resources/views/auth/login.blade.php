@@ -39,7 +39,7 @@
         </div>
         <a href="#" class="auth-link text-primary">Forgot password?</a>
       </div>
-      <div class="mb-2 d-grid gap-2">
+       <div class="mb-2 d-grid gap-2">
         <a href="{{ route('google-login') }}" class="btn btn-block btn-google auth-form-btn">
           <i class="mdi mdi-google me-2"></i>Connect using google </a>
       </div>

@@ -9,9 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Models\RoleUser;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -82,7 +85,7 @@ class LoginController extends Controller
             RateLimiter::hit($key, 60);
 
             // 5. Log failed attempt
-            \Log::warning('Failed login attempt', [
+            Log::warning('Failed login attempt', [
                 'email' => $request->email,
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent()
@@ -100,7 +103,7 @@ class LoginController extends Controller
         RateLimiter::clear($key);
 
         // 8. Log successful login
-        \Log::info('Successful login', [
+        Log::info('Successful login', [
             'user_id' => Auth::id(),
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent()
@@ -112,16 +115,25 @@ class LoginController extends Controller
         $user->last_login_ip = $request->ip();
         $user->save();
 
-        // 10. Session data (optional)
+        // Ambil semua role user
+        $userRoles = RoleUser::where('iduser', $user->id)->get();
+        $activeRole = $userRoles->firstWhere('status', 1);
+        $hasActiveRole = $activeRole !== null;
+
+        // Session data (optional)
         $request->session()->put('user', [
             'id' => $user->id,
             'email' => $user->email,
             'name' => $user->name,
+            'roles' => $userRoles->pluck('idrole')->toArray(),
+            'active_role' => $hasActiveRole ? $activeRole->idrole : null,
+            'role_name' => $hasActiveRole ? $activeRole->role->nama_role : null,
+            'role_names' => $userRoles->map(fn($r) => $r->role->nama_role)->toArray(),
             'status' => $user->status,
         ]);
 
         // Jika user status 'active' (belum verifikasi email) -> redirect ke OTP
-        if ($user->status === 'active' && !$user->hasVerifiedEmail()) {
+        if ($user->status === 'active') {
             // Generate OTP baru untuk verifikasi
             $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -129,48 +141,43 @@ class LoginController extends Controller
             $expiresAt = Carbon::now()->addMinutes(5);
 
             // Update OTP user
-            $user->update([
-                'otp' => $otp,
-                'otp_expires_at' => $expiresAt
-            ]);
+            $user->otp = $otp;
+            $user->otp_expires_at = $expiresAt;
+            $user->save();
 
             // Kirim OTP ke email user
             try {
                 Mail::to($user->email)->send(new SendEmail($otp));
-
-                // Untuk testing, simpan ke log
-                \Log::info('OTP for user ' . $user->email . ': ' . $otp);
 
                 // Redirect ke halaman verifikasi OTP
                 return redirect()->route('otp-verify')
                     ->with('success', 'Please check your email for OTP code to verify your account.');
 
             } catch (\Exception $e) {
-                \Log::error('Failed to send OTP email: ' . $e->getMessage());
-
                 return redirect()->route('otp-verify')
                     ->with('warning', 'Failed to send OTP email. Please click resend button.');
             }
         }
 
-        // Jika user status 'verified' (email sudah terverifikasi) -> redirect ke dashboard
-        if ($user->status === 'verified' || $user->hasVerifiedEmail()) {
-            // Update status user jika perlu
-            if ($user->status !== 'verified') {
-                $user->update(['status' => 'verified']);
-            }
+        // Redirect berdasarkan role aktif
+        if ($hasActiveRole) {
+            $roleName = $activeRole->role->nama_role ?? null;
 
-            return redirect()->intended($this->redirectTo)
-                ->with('success', 'Welcome back, ' . $user->name . '!');
+            return match ($roleName) {
+                'Admin' => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Customer' => redirect()->intended(route('customer-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Vendor' => redirect()->intended(route('menu-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                default => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
+            };
         }
 
-        // Jika status lain (misal: suspended, inactive) -> logout dan beri pesan
+        // Jika tidak ada role aktif, logout
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->back()
-            ->withErrors(['email' => 'Your account is not active. Please contact support.']);
+        return redirect()->route('login-form')
+            ->withErrors(['email' => 'No active role found. Please contact support.']);
     }
 
     public function logout(Request $request)
