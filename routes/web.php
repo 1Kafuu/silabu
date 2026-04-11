@@ -147,11 +147,16 @@ Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name
 // Midtrans pay pending order
 Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
 
-// Midtrans Update Status from frontend snap result
+// Midtrans
 Route::post('/midtrans/update-status', [MidtransController::class, 'updateStatus'])->name('midtrans.update-status');
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
+    Route::get('/pesanan', [VendorController::class, 'pesanan'])->name('vendor-pesanan');
+    Route::get('/menu/create', [VendorController::class, 'createMenu'])->name('create-menu');
+    Route::get('/menu/edit/{id}', [VendorController::class, 'editMenu'])->name('edit-menu');
+    Route::put('/menu/update/{id}', [VendorController::class, 'updateMenu'])->name('update-menu');
+    Route::put('/menu/delete/{id}', [VendorController::class, 'deleteMenu'])->name('delete-menu');
     Route::post('/menu/store', [VendorController::class, 'store'])->name('store-menu');
 });
 

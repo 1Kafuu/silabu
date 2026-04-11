@@ -20,4 +20,10 @@
         <i class="mdi mdi-food-fork-drink menu-icon"></i>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{route('vendor-pesanan')}}">
+        <span class="menu-title">Menu</span>
+        <i class="mdi mdi-food-fork-drink menu-icon"></i>
+      </a>
+    </li>
 </nav>

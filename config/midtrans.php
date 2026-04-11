@@ -5,6 +5,5 @@ return [
     'isProduction' => env('MIDTRANS_IS_PRODUCTION'),
     'isSanitized' => env('MIDTRANS_IS_SANITIZED'),
     'is3ds' => env('MIDTRANS_IS_3DS'),
-    'midtrans_url' => env('MIDTRANS_URL'),
-    'callback_url' => env('MIDTRANS_CALLBACK_URL', url('/midtrans/callback'))
+    // 'callback_url' => env('MIDTRANS_CALLBACK_URL'),
 ];

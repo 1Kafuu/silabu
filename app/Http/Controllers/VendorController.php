@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VendorController extends Controller
 {
@@ -126,6 +127,36 @@ class VendorController extends Controller
             $query->where('iduser', Auth::id());
         })->with('vendor.user')->get();
         return view('vendor.dashboard', compact('menus'));
+    }
+
+    public function pesanan()
+    {
+        $idvendor = auth()->user()->vendor->idvendor ?? null;
+        if (!$idvendor) {
+            abort(403, 'Vendor tidak ditemukan untuk user ini.');
+        }
+
+        $orders = DB::table('detail_pesanan')
+            ->join('menu', 'detail_pesanan.idmenu', '=', 'menu.idmenu')
+            ->join('pesanan', 'detail_pesanan.idpesanan', '=', 'pesanan.idpesanan')
+            ->where('menu.idvendor', $idvendor)
+            ->whereIn('pesanan.status_bayar', ['success', 'paid'])
+            ->select(
+                'pesanan.idpesanan',
+                'pesanan.nama as nama_pemesan',
+                'pesanan.metode_bayar',
+                'pesanan.status_bayar',
+                'detail_pesanan.jumlah',
+                'detail_pesanan.harga',
+                'detail_pesanan.subtotal',
+                'detail_pesanan.catatan',
+                'detail_pesanan.timestamp',
+                'menu.nama_menu'
+            )
+            ->orderBy('detail_pesanan.timestamp', 'desc')
+            ->get();
+
+        return view('vendor.pesanan', compact('orders'));
     }
 
     public function createMenu()

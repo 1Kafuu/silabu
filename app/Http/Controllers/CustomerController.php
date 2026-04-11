@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -40,6 +41,11 @@ class CustomerController extends Controller
             'total' => 'required|numeric',
             'metode_bayar' => 'required|string|max:255',
             'status_bayar' => 'required|string|max:255',
+            'items' => 'required|array|min:1',
+            'items.*.idmenu' => 'required|integer|exists:menu,idmenu',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.harga' => 'required|numeric|min:0',
+            'items.*.subtotal' => 'required|numeric|min:0',
         ]);
 
         // Handle iduser - can be null for guest users
@@ -85,7 +91,35 @@ class CustomerController extends Controller
             ], 500);
         }
 
-        $result = Pesanan::create($validated);
+        DB::beginTransaction();
+        try {
+            $result = Pesanan::create($validated);
+
+            foreach ($request->input('items', []) as $item) {
+                DB::table('detail_pesanan')->insert([
+                    'idmenu' => $item['idmenu'],
+                    'idpesanan' => $result->idpesanan,
+                    'jumlah' => $item['qty'],
+                    'harga' => $item['harga'],
+                    'subtotal' => $item['subtotal'],
+                    'timestamp' => now(),
+                    'catatan' => $item['catatan'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to save pesanan detail: ' . $e->getMessage());
+
+            session()->flash('error', 'Failed to save pesanan. Please try again.');
+            $notificationHTML = view('components.notification')->render();
+
+            return response()->json([
+                'success' => false,
+                'notification' => $notificationHTML
+            ], 500);
+        }
 
         // Midtrans Configuration
         \Midtrans\Config::$serverKey = config('midtrans.server_key');

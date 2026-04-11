@@ -5,16 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class MidtransController extends Controller
 {
-    /**
-     * Midtrans Callback URL
-     * This endpoint receives notifications from Midtrans when payment status changes.
-     * 
-     * @param Request $request
-     * @return Response
-     */
     public function callback(Request $request): Response
     {
         // Get Midtrans configuration
@@ -122,12 +116,6 @@ class MidtransController extends Controller
         return response('OK', 200);
     }
 
-    /**
-     * Generate Midtrans payment token for an existing pending order
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function payPending(Request $request)
     {
         $request->validate([
@@ -189,14 +177,6 @@ class MidtransController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Update payment method and status from Midtrans Snap result (frontend callback)
-     * Called after snap.pay onSuccess/onPending from the frontend
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function updateStatus(Request $request)
     {
         $request->validate([

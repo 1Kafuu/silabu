@@ -263,7 +263,6 @@
                                       Swal.fire({
                                           icon: 'success',
                                           title: 'Pembayaran Berhasil!',
-                                          text: 'Transaksi ID: ' + result.order_id + ' | Metode: ' + (result.payment_type || 'midtrans'),
                                           timer: 2500,
                                           showConfirmButton: false
                                       }).then(() => {
@@ -273,7 +272,6 @@
                                       Swal.fire({
                                           icon: 'success',
                                           title: 'Pembayaran Berhasil!',
-                                          text: 'Transaksi ID: ' + result.order_id,
                                           timer: 2000,
                                           showConfirmButton: false
                                       }).then(() => {
