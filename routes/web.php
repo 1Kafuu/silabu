@@ -147,9 +147,6 @@ Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name
 // Midtrans pay pending order
 Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
 
-// Midtrans
-Route::post('/midtrans/update-status', [MidtransController::class, 'updateStatus'])->name('midtrans.update-status');
-
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
     Route::get('/pesanan', [VendorController::class, 'pesanan'])->name('vendor-pesanan');

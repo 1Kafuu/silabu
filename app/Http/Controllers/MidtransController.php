@@ -3,25 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pesanan;
+use App\Traits\MidtransConfigTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 
 class MidtransController extends Controller
 {
+    use MidtransConfigTrait;
+
     public function callback(Request $request): Response
     {
-        // Get Midtrans configuration
-        $serverKey = config('midtrans.server_key');
-        $isProduction = config('midtrans.isProduction');
-        $isSanitized = config('midtrans.isSanitized');
-        $is3ds = config('midtrans.is3ds');
-
-        // Set Midtrans configuration
-        \Midtrans\Config::$serverKey = $serverKey;
-        \Midtrans\Config::$isProduction = $isProduction;
-        \Midtrans\Config::$isSanitized = $isSanitized;
-        \Midtrans\Config::$is3ds = $is3ds;
+        $this->configureMidtrans();
 
         // Get notification body
         $notificationBody = file_get_contents('php://input');
@@ -29,7 +21,7 @@ class MidtransController extends Controller
 
         // Verify signature if available
         if ($notificationSignature) {
-            $signatureKey = hash('sha512', $serverKey . $notificationBody);
+            $signatureKey = hash('sha512', config('midtrans.server_key') . $notificationBody);
             if ($signatureKey !== $notificationSignature) {
                 \Log::warning('Midtrans Callback: Invalid signature');
                 return response('Invalid signature', 403);
@@ -104,11 +96,6 @@ class MidtransController extends Controller
 
         // Additional processing for successful payment
         if ($pesanan->status_bayar === 'success') {
-            // You can add additional logic here, such as:
-            // - Send email notification to customer
-            // - Update inventory
-            // - Create shipping order
-            // - Log successful payment
             \Log::info('Payment successful for order: ' . $orderId);
         }
 
@@ -134,17 +121,18 @@ class MidtransController extends Controller
             ], 404);
         }
 
-        // Get Midtrans configuration
-        $serverKey = config('midtrans.server_key');
-        $isProduction = config('midtrans.isProduction');
-        $isSanitized = config('midtrans.isSanitized');
-        $is3ds = config('midtrans.is3ds');
+        // Reuse an existing snap token if the order already has one.
+        // This avoids Midtrans 400 error when order_id was already registered.
+        if ($pesanan->snap_token) {
+            return response()->json([
+                'success' => true,
+                'snap_token' => $pesanan->snap_token,
+                'order_id' => $pesanan->idpesanan,
+                'message' => 'Existing snap token returned.'
+            ]);
+        }
 
-        // Set Midtrans configuration
-        \Midtrans\Config::$serverKey = $serverKey;
-        \Midtrans\Config::$isProduction = $isProduction;
-        \Midtrans\Config::$isSanitized = $isSanitized;
-        \Midtrans\Config::$is3ds = $is3ds;
+        $this->configureMidtrans();
 
         $params = [
             'transaction_details' => [
@@ -176,38 +164,5 @@ class MidtransController extends Controller
                 'message' => 'Gagal membuat token pembayaran Midtrans.'
             ], 500);
         }
-    }
-    public function updateStatus(Request $request)
-    {
-        $request->validate([
-            'order_id' => 'required',
-            'status_bayar' => 'required|string',
-            'metode_bayar' => 'nullable|string',
-        ]);
-
-        $pesanan = Pesanan::where('idpesanan', $request->order_id)->first();
-
-        if (!$pesanan) {
-            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
-        }
-
-        $pesanan->status_bayar = $request->status_bayar;
-
-        // Update metode_bayar: use payment_type from Midtrans if success, keep 'midtrans' if pending
-        if ($request->status_bayar === 'success' && $request->metode_bayar) {
-            $pesanan->metode_bayar = $request->metode_bayar;
-        } elseif ($request->status_bayar === 'pending') {
-            $pesanan->metode_bayar = 'midtrans';
-        }
-
-        $pesanan->save();
-
-        \Log::info('Payment status updated from frontend', [
-            'order_id' => $request->order_id,
-            'status_bayar' => $pesanan->status_bayar,
-            'metode_bayar' => $pesanan->metode_bayar,
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Payment status updated']);
     }
 }

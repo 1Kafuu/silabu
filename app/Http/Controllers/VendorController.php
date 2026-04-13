@@ -289,7 +289,7 @@ class VendorController extends Controller
             return response()->json([
                 'success' => true,
                 'notification' => $notificationHTML,
-                'redirect' => route('menu-list') // Asumsikan route untuk dashboard vendor
+                'redirect' => route('menu-list')
             ]);
         } else {
             session()->flash('error', 'Failed to create menu. Please try again.');
@@ -304,7 +304,4 @@ class VendorController extends Controller
             ], 500);
         }
     }
-
-
-
 }

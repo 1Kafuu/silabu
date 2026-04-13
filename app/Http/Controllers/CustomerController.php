@@ -6,13 +6,16 @@ use App\Models\Menu;
 use App\Models\Pesanan;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Traits\MidtransConfigTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    public function index()
+    use MidtransConfigTrait;
+
+    public function index(Request $request)
     {
         // Get all active vendors
         $vendors = Vendor::orderBy('nama_vendor', 'asc')->get();
@@ -20,16 +23,20 @@ class CustomerController extends Controller
             // Jika login, ambil berdasarkan id user tersebut
             $pesanan = Pesanan::with('user')
                 ->where('iduser', Auth::id())
-                ->orderBy('idpesanan', 'asc')
+                ->orderBy('idpesanan', 'desc')
                 ->get();
         } else {
             $pesanan = Pesanan::where('nama','like', 'GUEST-%') // Sesuaikan kolomnya, misal 'nama_pemesan'
-                ->orderBy('idpesanan', 'asc')
+                ->orderBy('idpesanan', 'desc')
                 ->get();
         }
 
         // Get all menus from active vendors
         $menus = Menu::with('vendor')->orderBy('idmenu', 'asc')->get();
+
+        if ($request->query('ajax') === 'transaksi') {
+            return view('components.customer-transactions-table', compact('pesanan'));
+        }
 
         return view('customer.dashboard', compact('vendors', 'menus', 'pesanan'));
     }
@@ -79,16 +86,10 @@ class CustomerController extends Controller
         $pesanan = Pesanan::where('nama', $validated['nama'])->first();
 
         if ($pesanan) {
-            session()->flash('error', 'Pesanan with the same name already exists. Please try again.');
-
-            $notificationHTML = view('components.notification')->render();
-
-            \Log::info('Notification HTML: ' . $notificationHTML);
-
             return response()->json([
                 'success' => false,
-                'notification' => $notificationHTML
-            ], 500);
+                'message' => 'Pesanan dengan nama yang sama sudah ada. Silakan coba lagi.'
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -112,20 +113,13 @@ class CustomerController extends Controller
             DB::rollBack();
             \Log::error('Failed to save pesanan detail: ' . $e->getMessage());
 
-            session()->flash('error', 'Failed to save pesanan. Please try again.');
-            $notificationHTML = view('components.notification')->render();
-
             return response()->json([
                 'success' => false,
-                'notification' => $notificationHTML
+                'message' => 'Gagal menyimpan pesanan. Silakan coba lagi.'
             ], 500);
         }
 
-        // Midtrans Configuration
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = config('midtrans.isProduction');
-        \Midtrans\Config::$isSanitized = config('midtrans.isSanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is3ds');
+        $this->configureMidtrans();
 
         // Create Midtrans Transaction
         $params = [
@@ -157,32 +151,20 @@ class CustomerController extends Controller
         }
 
         if ($result) {
-            session()->flash('success', 'Pesanan created successfully!');
-
-            $notificationHTML = view('components.notification')->render();
-
-            \Log::info('Notification HTML: ' . $notificationHTML);
-
             // Get the updated pesanan with midtrans token
             $result->loadMissing('user');
 
             return response()->json([
                 'success' => true,
-                'notification' => $notificationHTML,
+                'message' => 'Pesanan berhasil dibuat.',
                 'redirect' => route('customer-list'),
                 'snap_token' => $result->snap_token,
                 'order_id' => $result->idpesanan
             ]);
         } else {
-            session()->flash('error', 'Failed to create pesanan. Please try again.');
-
-            $notificationHTML = view('components.notification')->render();
-
-            \Log::info('Notification HTML: ' . $notificationHTML);
-
             return response()->json([
                 'success' => false,
-                'notification' => $notificationHTML
+                'message' => 'Gagal membuat pesanan. Silakan coba lagi.'
             ], 500);
         }
     }
