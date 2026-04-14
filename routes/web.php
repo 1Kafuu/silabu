@@ -1,23 +1,24 @@
 <?php
 
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerManageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WilayahController;
-use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 Route::get('/auth/redirect', [GoogleAuthController::class, 'redirectToProvider'])->name('google-login');
 
@@ -158,6 +159,22 @@ Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(fu
     Route::put('/menu/update/{id}', [VendorController::class, 'updateMenu'])->name('update-menu');
     Route::put('/menu/delete/{id}', [VendorController::class, 'deleteMenu'])->name('delete-menu');
     Route::post('/menu/store', [VendorController::class, 'store'])->name('store-menu');
+});
+
+Route::middleware(['verified','akses:Admin'])->prefix('customer')->group(function () {
+    Route::get('/manage/blob', [CustomerManageController::class, 'indexBlob'])->name('manage-customerBlob');
+    Route::get('/create/blob', [CustomerManageController::class, 'createBlob'])->name('create-customerBlob');
+    Route::post('/store-customer/blob', [CustomerManageController::class, 'storeBlob'])->name('store-customerBlob');
+    Route::get('/edit/blob/{id}', [CustomerManageController::class, 'editBlob'])->name('edit-customerBlob');
+    Route::put('/update/blob/{id}', [CustomerManageController::class, 'updateBlob'])->name('update-customerBlob');
+    Route::put('/delete/blob/{id}', [CustomerManageController::class, 'deleteBlob'])->name('delete-customerBlob');
+
+    Route::get('/manage/path', [CustomerManageController::class, 'indexPath'])->name('manage-customerPath');
+    Route::get('/create/path', [CustomerManageController::class, 'createPath'])->name('create-customerPath');
+    Route::post('/store-customer/path', [CustomerManageController::class, 'storePath'])->name('store-customerPath');
+    Route::get('/edit/path/{id}', [CustomerManageController::class, 'editPath'])->name('edit-customerPath');
+    Route::put('/update/path/{id}', [CustomerManageController::class, 'updatePath'])->name('update-customerPath');
+    Route::put('/delete/path/{id}', [CustomerManageController::class, 'deletePath'])->name('delete-customerPath');
 });
 
 Auth::routes();
