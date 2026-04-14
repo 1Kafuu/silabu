@@ -74,19 +74,18 @@
                             <div class="form-group text-center">
                                 <label>Ambil Foto</label><br>
 
-                                <div id="camera-container" style="position: relative; display: inline-block;">
-                                    <video id="video" width="320" height="240" autoplay
-                                        style="border: 2px solid #ddd; border-radius: 8px;"></video>
-                                    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-
-                                    <img id="photo-preview" width="320" height="240"
-                                        style="display:none; border: 2px solid #28a745; border-radius: 8px;">
+                                <!-- Preview yang muncul di form -->
+                                <div id="photo-preview-container" class="mb-3"
+                                    style="border: 2px dashed #ccc; padding: 10px; border-radius: 8px; min-height: 100px;">
+                                    <p class="text-muted mb-0" id="no-photo-text">Belum ada foto</p>
+                                    <img id="photo-preview" class="img-fluid"
+                                        style="display:none; max-width: 320px; max-height: 240px; border-radius: 8px;" />
                                 </div>
-                                <br>
-                                <button type="button" class="btn btn-primary mt-2" id="snap">
+
+                                <button type="button" class="btn btn-primary mt-2" id="open-camera-btn">
                                     <i class="mdi mdi-camera"></i> Ambil Foto
                                 </button>
-                                <button type="button" class="btn btn-warning mt-2" id="retake" style="display:none;">
+                                <button type="button" class="btn btn-warning mt-2" id="retake-btn" style="display:none;">
                                     <i class="mdi mdi-refresh"></i> Foto Ulang
                                 </button>
 
@@ -97,6 +96,54 @@
                             class="btn btn-gradient-primary me-2">Submit</button>
                         <a href="{{ route('manage-customerPath') }}" class="btn btn-light">Cancel</a>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kamera -->
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cameraModalLabel">Ambil Foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="mb-2">Live Preview</h6>
+                            <div style="position: relative;">
+                                <video id="modal-video" class="w-100 h-auto" autoplay
+                                    style="border: 2px solid #ddd; border-radius: 8px; background: #000;"></video>
+                                <button type="button" class="btn btn-danger btn-sm mt-2 w-100" id="close-camera-btn">
+                                    <i class="mdi mdi-close"></i> Tutup
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="mb-2">Snapshot</h6>
+                            <canvas id="modal-canvas" width="640" height="480" style="display:none;"></canvas>
+                            <img id="modal-photo-preview" class="img-fluid w-100 border-success"
+                                style="display: none; border: 2px solid; border-radius: 8px;" />
+
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="btn btn-primary flex-fill" id="snap-modal-btn">
+                                    <i class="mdi mdi-camera"></i> Ambil
+                                </button>
+                                <button type="button" class="btn btn-warning flex-fill" id="retake-modal-btn"
+                                    style="display: none;">
+                                    <i class="mdi mdi-refresh"></i> Ulang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" id="save-image-btn" disabled>
+                        <i class="mdi mdi-content-save"></i> Simpan Gambar
+                    </button>
                 </div>
             </div>
         </div>
@@ -138,44 +185,125 @@
 
 @push('js-page')
     <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const snap = document.getElementById('snap');
-        const retake = document.getElementById('retake');
+        // Variabel untuk Modal
+        const modalVideo = document.getElementById('modal-video');
+        const modalCanvas = document.getElementById('modal-canvas');
+        const modalPhotoPreview = document.getElementById('modal-photo-preview');
+        const snapModalBtn = document.getElementById('snap-modal-btn');
+        const retakeModalBtn = document.getElementById('retake-modal-btn');
+        const saveImageBtn = document.getElementById('save-image-btn');
+
+        // Variabel untuk Form
+        const openCameraBtn = document.getElementById('open-camera-btn');
+        const retakeBtn = document.getElementById('retake-btn');
         const photoPreview = document.getElementById('photo-preview');
+        const noPhotoText = document.getElementById('no-photo-text');
         const fotoInput = document.getElementById('foto_input');
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then(function (stream) {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(function (err) {
-                console.log("Gagal akses kamera: " + err);
-                alert("Harap izinkan akses kamera pada browser Anda (HTTPS/localhost)");
-            });
+        let stream = null;
+        let modalInstance = null;
 
-        snap.addEventListener('click', function () {
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, 320, 240);
-            const dataUrl = canvas.toDataURL('image/png');
+        // Buka Modal Kamera
+        openCameraBtn.addEventListener('click', function () {
+            if (stream) {
+                // Kamera sudah aktif, langsung tampilkan
+            } else {
+                // Mulai kamera
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(function (s) {
+                        stream = s;
+                        modalVideo.srcObject = stream;
+                        modalVideo.play();
+                    })
+                    .catch(function (err) {
+                        console.log("Gagal akses kamera: " + err);
+                        alert("Harap izinkan akses kamera pada browser Anda (HTTPS/localhost)");
+                    });
+            }
 
-            
-            fotoInput.value = dataUrl;
+            // Reset state untuk ambil foto baru
+            modalPhotoPreview.style.display = 'none';
+            snapModalBtn.style.display = 'inline-block';
+            retakeModalBtn.style.display = 'none';
+            saveImageBtn.disabled = true;
 
-            video.style.display = 'none';
-            snap.style.display = 'none';
-            photoPreview.src = dataUrl;
-            photoPreview.style.display = 'block';
-            retake.style.display = 'inline-block';
+            // Tampilkan modal
+            const modal = new bootstrap.Modal(document.getElementById('cameraModal'));
+            modal.show();
+            modalInstance = modal;
         });
 
-        retake.addEventListener('click', function () {
-            video.style.display = 'block';
-            snap.style.display = 'inline-block';
+        // Ambil foto di dalam modal
+        snapModalBtn.addEventListener('click', function () {
+            const context = modalCanvas.getContext('2d');
+
+            // Set resolusi canvas sesuai dengan resolusi asli video stream
+            modalCanvas.width = modalVideo.videoWidth;
+            modalCanvas.height = modalVideo.videoHeight;
+
+            // Gambar ke canvas
+            context.drawImage(modalVideo, 0, 0, modalCanvas.width, modalCanvas.height);
+
+            const dataUrl = modalCanvas.toDataURL('image/png');
+
+            modalPhotoPreview.src = dataUrl;
+            modalPhotoPreview.style.display = 'block';
+
+            snapModalBtn.style.display = 'none';
+            retakeModalBtn.style.display = 'inline-block';
+            saveImageBtn.disabled = false;
+        });
+
+        // Foto ulang
+        retakeModalBtn.addEventListener('click', function () {
+            modalPhotoPreview.style.display = 'none';
+            modalCanvas.style.display = 'none';
+            snapModalBtn.style.display = 'inline-block';
+            retakeModalBtn.style.display = 'none';
+            saveImageBtn.disabled = true;
+        });
+
+        // Simpan gambar ke form
+        saveImageBtn.addEventListener('click', function () {
+            const dataUrl = modalPhotoPreview.src;
+            fotoInput.value = dataUrl;
+
+            // Update preview di form
+            photoPreview.src = dataUrl;
+            photoPreview.style.display = 'block';
+            noPhotoText.style.display = 'none';
+
+            // Reset tombol di form
+            openCameraBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
+
+            // Tutup modal
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        });
+
+        // Foto ulang di form
+        retakeBtn.addEventListener('click', function () {
+            // Reset preview di form
             photoPreview.style.display = 'none';
-            retake.style.display = 'none';
-            fotoInput.value = ''; 
+            noPhotoText.style.display = 'block';
+            fotoInput.value = '';
+
+            // Reset tombol di form
+            openCameraBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+        });
+
+        // Tutup kamera saat modal ditutup
+        document.getElementById('cameraModal').addEventListener('hidden.bs.modal', function () {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            if (modalVideo) {
+                modalVideo.srcObject = null;
+            }
         });
     </script>
 @endpush
