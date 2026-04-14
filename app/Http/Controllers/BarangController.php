@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use Illuminate\Http\Request;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class BarangController extends Controller
 {
     public function index()
     {
         $barang = Barang::orderBy("id_barang", "asc")->get();
+        $generator = new BarcodeGeneratorPNG();
+
+        $barang->transform(function ($item) use ($generator) {
+            $barcodeBiner = $generator->getBarcode($item->id_barang, $generator::TYPE_CODE_128);
+            $item->barcode_base64 = base64_encode($barcodeBiner);
+            return $item;
+        });
+
         return view("admin.items.items", compact('barang'));
     }
 

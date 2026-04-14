@@ -1,5 +1,6 @@
 <?php
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
@@ -17,7 +18,6 @@ use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Socialite;
 
 Route::get('/auth/redirect', [GoogleAuthController::class, 'redirectToProvider'])->name('google-login');
 
@@ -143,9 +143,12 @@ Route::prefix('customer')->group(function () {
 // Midtrans Callback URL
 // This route receives payment notifications from Midtrans
 Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans.callback');
-
 // Midtrans pay pending order
 Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
+
+Route::get('/generate-qr/{id}', function ($id) {
+    return QrCode::size(200)->generate($id);
+});
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');

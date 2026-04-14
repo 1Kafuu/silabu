@@ -1,5 +1,5 @@
 @foreach ($pesanan as $row)
-    <tr>
+    <tr onclick="showQrModal('{{ $row->idpesanan }}', '{{ $row->status_bayar }}')" style="cursor: pointer;">
         <td>{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</td>
         <td>{{ $row->created_at->format('d M Y, H:i') }}</td>
         <td>{{ $row->metode_bayar }}</td>
@@ -19,8 +19,9 @@
         </td>
         <td>
             @if ($row->status_bayar === 'pending')
-                <button type="button" class="btn btn-sm btn-primary"
-                    onclick="bayarPesanan({{ $row->idpesanan }}, this)">Bayar</button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); bayarPesanan('{{ $row->idpesanan }}', this)">
+                    Bayar
+                </button>
             @else
                 -
             @endif

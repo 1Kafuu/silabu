@@ -57,8 +57,26 @@
     }
 
     .kode {
-        font-size: 9px;
-        color: #555;
+        margin-top: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .kode img {
+        width: auto;
+        max-width: 100px;
+        height: 20px;
+        display: block;
+    }
+
+    .id-text {
+        font-size: 7px;
+        font-family: 'Courier New', Courier, monospace;
+        margin-top: 1px;
+        letter-spacing: 1px;
+        color: #333;
     }
 </style>
 
@@ -78,7 +96,15 @@
                                 <div class="harga">
                                     {{ Illuminate\Support\Number::currency($dataToPrint[$index]->harga ?? 0, 'IDR', 'id') }}
                                 </div>
-                                <div class="kode">ID: {{ $dataToPrint[$index]->id_barang ?? '' }}</div>
+                                <div class="kode">
+                                    {{-- Barcode di bagian atas --}}
+                                    <img src="data:image/png;base64,{{ $dataToPrint[$index]->barcode_base64 ?? '' }}" alt="Barcode">
+
+                                    {{-- ID Barang di bagian bawah --}}
+                                    <div class="id-text">
+                                        {{ $dataToPrint[$index]->id_barang ?? '' }}
+                                    </div>
+                                </div>
                             </div>
                             @php $index++; @endphp
                         @else

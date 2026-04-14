@@ -34,11 +34,13 @@
           </div>
         </a>
         <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-          <form action="{{ route('login-form') }}" method="get">
+          @if (!auth()->user())
+            <form action="{{ route('login-form') }}" method="get">
             @csrf
             <button type="submit" class="dropdown-item">
               <i class="mdi mdi-login me-2 text-primary"></i> Login </button>
           </form>
+          @endif
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="#">
             <i class="mdi mdi-cached me-2 text-success"></i> Activity Log </a>
