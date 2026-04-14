@@ -49,7 +49,7 @@
                                                 {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                                             </td>
                                             <td>
-                                                {{ $row->id_barang }}
+                                                <img src="data:image/png;base64,{{ $row->barcode_base64 }}" alt="Barcode">
                                             </td>
                                             <td>
                                                 {{ $row->nama }}

@@ -7,6 +7,7 @@ use App\Models\Buku;
 use App\Models\Kategori;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class PDFGeneratorController extends Controller
 {
@@ -32,10 +33,19 @@ class PDFGeneratorController extends Controller
 
         $dataBarang = Barang::whereIn('id_barang', $items)->get();
 
+        $generator = new BarcodeGeneratorPNG();
+
+        $dataBarang->transform(function ($barang) use ($generator) {
+            $barcodeBiner = $generator->getBarcode($barang->id_barang, $generator::TYPE_CODE_128, 3, 10);
+            $barang->barcode_base64 = base64_encode($barcodeBiner);
+            return $barang;
+        });
+
+        // 3. Kirim ke View PDF
         $pdf = Pdf::loadView('pdf.label', [
             'selected' => $selected,
             'dataToPrint' => $dataBarang
-        ])->setPaper([0, 0, 595.28, 481.89], 'potrait');
+        ])->setPaper([0, 0, 595.28, 481.89], 'portrait');
 
         return $pdf->stream('label-harga.pdf');
     }

@@ -57,6 +57,18 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ route('manage-customerBlob') }}">
+        <span class="menu-title">Customer (Blob)</span>
+        <i class="mdi mdi-account-group menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('manage-customerPath') }}">
+        <span class="menu-title">Customer (Path)</span>
+        <i class="mdi mdi-account-group menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ route('shipment') }}">
         <span class="menu-title">Shipment</span>
         <i class="mdi mdi-cart menu-icon"></i>
