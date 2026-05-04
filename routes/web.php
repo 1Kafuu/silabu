@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\QRCodeController;  
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
 use App\Http\Controllers\BarangController;
@@ -12,7 +13,6 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\POSController;
-use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
@@ -148,7 +148,7 @@ Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name
 // Midtrans pay pending order
 Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
 
-Route::get('/generate-qr/{id}', [QRCodeController::class,'qrcode']);
+Route::get('/generate-qr/{id}', [QRCodeController::class,'qrcode'])->name('generate-qr');
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');

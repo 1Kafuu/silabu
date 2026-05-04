@@ -122,100 +122,12 @@
     @push('js-page')
         <script src="https://unpkg.com/html5-qrcode"></script>
         <script>
-            let html5QrcodeScanner = null;
-            let lastScannedCode = null;
-            const beepSound = new Audio('{{ asset('music/scanner-beep.mp3') }}');
-
-            document.getElementById('scanModal').addEventListener('show.bs.modal', function () {
-                lastScannedCode = null;
-                document.getElementById('scan-result').classList.add('d-none');
-                document.getElementById('result-id').textContent = '';
-                document.getElementById('result-nama').textContent = '';
-                document.getElementById('result-harga').textContent = '';
-
-                html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-                    fps: 10,
-                    qrbox: { width: 300, height: 100 },
-                    rememberLastUsedCamera: true,
-                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.CODE_128,
-                        Html5QrcodeSupportedFormats.CODE_39,
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.UPC_E,
-                        Html5QrcodeSupportedFormats.CODABAR,
-                        Html5QrcodeSupportedFormats.ITF,
-                    ]
-                }, false);
-
-                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-
-                const observer = new MutationObserver(() => {
-                    const btnStart = document.getElementById('html5-qrcode-button-camera-start');
-                    const btnStop = document.getElementById('html5-qrcode-button-camera-stop');
-                    const selectCamera = document.getElementById('html5-qrcode-select-camera');
-                    
-                    
-                    if (btnStart && !btnStart.classList.contains('btn')) {
-                        btnStart.className = 'btn btn-gradient-primary mt-2 mx-2';
-                        btnStart.style.cssText = '';
-                        btnStart.style.display = 'inline-block';
-                    }
-                    
-                    if (btnStop && !btnStop.classList.contains('btn')) {
-                        btnStop.className = 'btn btn-danger mt-2';
-                        btnStop.style.cssText = '';
-                        btnStop.style.display = 'inline-block';
-                    }
-
-                    if (selectCamera && !selectCamera.classList.contains('form-select')) {
-                        selectCamera.className = 'form-select form-select-sm mt-2 mb-2 d-inline-block';
-                        selectCamera.style.cssText = 'width: 90%; color: #333;';
-                    }
-                });
-
-                observer.observe(document.getElementById('reader'), { childList: true, subtree: true });
-            });
-
-            document.getElementById('scanModal').addEventListener('hide.bs.modal', function () {
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.clear().then(() => {
-                        html5QrcodeScanner = null;
-                    }).catch(error => {
-                        console.error("Failed to clear html5QrcodeScanner", error);
-                    });
-                }
-            });
-
-            function onScanSuccess(decodedText, decodedResult) {
-                if (decodedText === lastScannedCode) return;
-                lastScannedCode = decodedText;
-
-                beepSound.play();
-
-                fetch(`{{ url('items/barcode') }}/${decodedText}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('result-id').textContent = data.data.id_barang;
-                            document.getElementById('result-nama').textContent = data.data.nama;
-                            document.getElementById('result-harga').textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.data.harga);
-                            document.getElementById('scan-result').classList.remove('d-none');
-                        } else {
-                            alert(data.message || 'Barang tidak ditemukan');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat mencari barang');
-                    });
-            }
-
-            function onScanFailure(error) {
-            }
+            window.barcodeScannerConfig = {
+                beepUrl: '{{ asset('music/scanner-beep.mp3') }}',
+                lookupUrl: '{{ url('items/barcode') }}'
+            };
         </script>
+        <script src="{{ asset('js/barcode.js') }}"></script>
     @endpush
 
     @push('js-page')
