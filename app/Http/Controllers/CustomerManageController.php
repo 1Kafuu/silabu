@@ -143,14 +143,15 @@ class CustomerManageController extends Controller
             'foto_path' => 'nullable',
         ]);
 
-        $imageData = $request->input('foto_path');
+        $imageName = null;
+        if ($request->foto_path) {
+            $imageData = $request->input('foto_path');
+            $image = str_replace('data:image/png;base64,', '', $imageData);
+            $image = str_replace(' ', '+', $image);
+            $imageName = 'cust_' . time() . '.png';
 
-        $image = str_replace('data:image/png;base64,', '', $imageData);
-        $image = str_replace(' ', '+', $image);
-        $imageName = 'cust_' . time() . '.png';
-
-        Storage::disk('public')->put('customers/' . $imageName, base64_decode($image));
-
+            Storage::disk('public')->put('customers/' . $imageName, base64_decode($image));
+        }
         $customer = Customer::create([
             'nama' => $validated['nama'],
             'alamat' => $validated['alamat'],
@@ -159,7 +160,7 @@ class CustomerManageController extends Controller
             'kecamatan' => $validated['kecamatan'],
             'kelurahan' => $validated['kelurahan'],
             'kodepos' => $validated['kodepos'],
-            'foto_path' => 'customers/' . $imageName,
+            'foto_path' => $imageName ? 'customers/' . $imageName : null,
         ]);
 
         if ($customer) {

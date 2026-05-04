@@ -39,9 +39,11 @@
         </div>
         <a href="#" class="auth-link text-primary">Forgot password?</a>
       </div>
-       <div class="mb-2 d-grid gap-2">
+      <div class="mb-2 d-grid gap-2">
         <a href="{{ route('google-login') }}" class="btn btn-block btn-google auth-form-btn">
           <i class="mdi mdi-google me-2"></i>Connect using google </a>
+        <a href="{{ route('customer-list') }}" class="btn btn-block btn-success">
+          <i class="mdi mdi-cart me-2"></i>Customer Page </a>
       </div>
       <div class="text-center mt-4 font-weight-light"> Don't have an account? <a href="{{route('register')}}"
           class="text-primary">Create</a>

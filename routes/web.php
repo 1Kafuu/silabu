@@ -12,13 +12,13 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\POSController;
+use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 Route::get('/auth/redirect', [GoogleAuthController::class, 'redirectToProvider'])->name('google-login');
 
@@ -105,6 +105,7 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('items')->group(function 
     Route::put('/delete:{id}', [BarangController::class, 'delete'])->name('delete-items');
     Route::get('/edit:{id}', [BarangController::class, 'edit'])->name('edit-items');
     Route::put('/update:{id}', [BarangController::class, 'update'])->name('update-items');
+    Route::get('/barcode/{id}', [BarangController::class, 'findByBarcode'])->name('find-by-barcode');
 });
 
 Route::middleware(['verified', 'akses:Admin'])->prefix('shipment')->group(function () {
@@ -147,18 +148,18 @@ Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name
 // Midtrans pay pending order
 Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
 
-Route::get('/generate-qr/{id}', function ($id) {
-    return QrCode::size(200)->generate($id);
-});
+Route::get('/generate-qr/{id}', [QRCodeController::class,'qrcode']);
 
 Route::middleware(['verified','akses:Admin,Vendor'])->prefix('vendor')->group(function () {
     Route::get('/menu', [VendorController::class, 'menu'])->name('menu-list');
     Route::get('/pesanan', [VendorController::class, 'pesanan'])->name('vendor-pesanan');
+    Route::get('/scan-qr', [VendorController::class, 'scanQr'])->name('vendor-scan-qr');
     Route::get('/menu/create', [VendorController::class, 'createMenu'])->name('create-menu');
     Route::get('/menu/edit/{id}', [VendorController::class, 'editMenu'])->name('edit-menu');
     Route::put('/menu/update/{id}', [VendorController::class, 'updateMenu'])->name('update-menu');
     Route::put('/menu/delete/{id}', [VendorController::class, 'deleteMenu'])->name('delete-menu');
     Route::post('/menu/store', [VendorController::class, 'store'])->name('store-menu');
+    Route::get('/qrcode/{id}', [VendorController::class, 'findByQRcode'])->name('find-by-qrcode');
 });
 
 Route::middleware(['verified','akses:Admin'])->prefix('customer')->group(function () {

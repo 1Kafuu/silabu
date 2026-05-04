@@ -547,8 +547,6 @@
         });
 
         function showQrModal(orderId, status) {
-            // Cek apakah status sudah paid/success/settlement
-            // Sesuaikan string status dengan yang ada di database kamu
             if (status !== 'success' && status !== 'paid' && status !== 'settlement') {
                 Swal.fire({
                     icon: 'warning',
@@ -556,12 +554,11 @@
                     text: 'QR Code hanya tersedia untuk pesanan yang sudah lunas.',
                     confirmButtonColor: '#3085d6'
                 });
-                return; // Berhenti di sini, modal tidak akan terbuka
+                return;
             }
 
             const qrUrl = `{{ url('/generate-qr') }}/${orderId}`;
 
-            // Tampilkan Loader
             $('#qrcode-container').html(`
             <div id="modal-loader" class="text-center p-4">
                 <div class="spinner-border text-info" role="status"></div>
@@ -569,16 +566,12 @@
         `);
             $('#qr-order-id').text('#' + orderId);
 
-            // Tampilkan Modal
             $('#qrModal').modal('show');
-
-            // Ambil SVG via AJAX
             axios.get(qrUrl)
                 .then(response => {
                     setTimeout(() => {
                         $('#qrcode-container').html(response.data);
                         $('#qrcode-container svg').addClass('img-fluid');
-                        // Optional: Beri styling agar SVG berada di tengah
                         $('#qrcode-container svg').css({
                             'display': 'block',
                             'margin': 'auto',

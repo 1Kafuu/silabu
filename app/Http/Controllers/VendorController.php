@@ -159,6 +159,85 @@ class VendorController extends Controller
         return view('vendor.pesanan', compact('orders'));
     }
 
+    public function scanQr()
+    {
+        return view('vendor.scan_qr');
+    }
+
+    public function findByQRcode($id)
+    {
+        $orders = DB::table('detail_pesanan')
+            ->join('menu', 'detail_pesanan.idmenu', '=', 'menu.idmenu')
+            ->join('pesanan', 'detail_pesanan.idpesanan', '=', 'pesanan.idpesanan')
+            ->where('detail_pesanan.idpesanan', $id)
+            ->select(
+                'pesanan.idpesanan',
+                'pesanan.nama as nama_pemesan',
+                'pesanan.total',
+                'pesanan.metode_bayar',
+                'pesanan.status_bayar',
+                'detail_pesanan.jumlah',
+                'detail_pesanan.harga',
+                'detail_pesanan.subtotal',
+                'detail_pesanan.catatan',
+                'detail_pesanan.timestamp',
+                'menu.nama_menu'
+            )
+            ->orderBy('detail_pesanan.timestamp', 'asc')
+            ->get();
+
+        $pesanan = DB::table('pesanan')
+            ->where('idpesanan', $id)
+            ->first();
+
+        if (!$pesanan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        }
+
+        $statusMap = [
+            'pending' => ['label' => 'Pending', 'badge' => 'bg-warning text-dark'],
+            'success' => ['label' => 'Success', 'badge' => 'bg-success'],
+            'paid' => ['label' => 'Paid', 'badge' => 'bg-success'],
+            'failed' => ['label' => 'Failed', 'badge' => 'bg-danger'],
+            'cancelled' => ['label' => 'Cancelled', 'badge' => 'bg-secondary'],
+        ];
+
+        $status = $statusMap[$pesanan->status_bayar] ?? [
+            'label' => ucfirst((string) $pesanan->status_bayar),
+            'badge' => 'bg-secondary'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'order_id' => $pesanan->idpesanan,
+                'customer_name' => $pesanan->nama,
+                'total' => (float) $pesanan->total,
+                'total_formatted' => 'Rp ' . number_format((float) $pesanan->total, 0, ',', '.'),
+                'metode_bayar' => $pesanan->metode_bayar,
+                'status_bayar' => $pesanan->status_bayar,
+                'status_label' => $status['label'],
+                'status_badge' => $status['badge'],
+                'items' => $orders->map(function ($item) {
+                    return [
+                        'nama_menu' => $item->nama_menu,
+                        'qty' => (int) $item->jumlah,
+                        'harga' => (float) $item->harga,
+                        'harga_formatted' => 'Rp ' . number_format((float) $item->harga, 0, ',', '.'),
+                        'subtotal' => (float) $item->subtotal,
+                        'subtotal_formatted' => 'Rp ' . number_format((float) $item->subtotal, 0, ',', '.'),
+                        'catatan' => $item->catatan,
+                        'timestamp' => $item->timestamp,
+                    ];
+                })->values(),
+                'scanned_at' => now()->format('d M Y H:i:s'),
+            ]
+        ]);
+    }
+
     public function createMenu()
     {
         return view('vendor.create-menu');
