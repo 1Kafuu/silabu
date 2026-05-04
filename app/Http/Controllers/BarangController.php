@@ -132,4 +132,25 @@ class BarangController extends Controller
         return redirect()->route('items-list')
             ->with('success', 'Items deleted successfully!');
     }
+
+    public function findByBarcode($id)
+    {
+        $barang = Barang::where('id_barang', $id)->first();
+
+        if (!$barang) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barang tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id_barang' => $barang->id_barang,
+                'nama' => $barang->nama,
+                'harga' => $barang->harga,
+            ]
+        ]);
+    }
 }

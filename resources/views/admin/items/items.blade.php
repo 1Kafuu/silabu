@@ -12,15 +12,19 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title">Items</h4>
-                        <div>
+                        <div class="d-flex flex-wrap gap-2">
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <span class="mx-2">PDF</span>
+                                data-bs-target="#labelModal">
+                                <span class="d-none d-sm-inline mx-1">PDF</span>
                                 <i class="mdi mdi-file-export"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#scanModal">
+                                <i class="mdi mdi-line-scan"></i>
+                                <span class="d-none d-sm-inline mx-1">Scan Label</span>
                             </button>
                             <a href="{{ route('create-items') }}" class="btn btn-success btn-sm">
                                 <i class="mdi mdi-bookmark-plus"></i>
-                                <span class="mx-2">Add Items</span>
+                                <span class="d-none d-sm-inline mx-1">Add Items</span>
                             </a>
                         </div>
                     </div>
@@ -39,52 +43,51 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    @foreach ($barang as $row)
-                                        <tr>
-                                            <td style="text-align: center">
-                                                <input type="checkbox" name="selected_items[]" value="{{ $row->id_barang }}">
-                                            </td>
-                                            <td>
-                                                {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
-                                            </td>
-                                            <td>
-                                                <img src="data:image/png;base64,{{ $row->barcode_base64 }}" alt="Barcode">
-                                            </td>
-                                            <td>
-                                                {{ $row->nama }}
-                                            </td>
-                                            <td>
-                                                {{ Illuminate\Support\Number::currency($row->harga, 'IDR', 'id') }}
-                                            </td>
-                                            <td>
-                                                <div class="d-flex justify-end gap-2">
-                                                    <a href={{ route('edit-items', ['id' => $row->id_barang]) }}
-                                                        class="btn btn-outline-success btn-sm">
-                                                        <i class="mdi mdi-account-edit"></i>
-                                                        <span>Edit</span>
-                                                    </a>
-                                                    <form method="POST"
-                                                        action="{{ route('delete-items', ['id' => $row->id_barang]) }}">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?')">
-                                                            <i class="mdi mdi-account-remove"></i>
-                                                            <span>Delete</span>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tr>
+                                @foreach ($barang as $row)
+                                    <tr>
+                                        <td style="text-align: center">
+                                            <input type="checkbox" name="selected_items[]" value="{{ $row->id_barang }}">
+                                        </td>
+                                        <td>
+                                            {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                                        </td>
+                                        <td>
+                                            <img src="data:image/png;base64,{{ $row->barcode_base64 }}" alt="Barcode">
+                                        </td>
+                                        <td>
+                                            {{ $row->nama }}
+                                        </td>
+                                        <td>
+                                            {{ Illuminate\Support\Number::currency($row->harga, 'IDR', 'id') }}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-end gap-2">
+                                                <a href={{ route('edit-items', ['id' => $row->id_barang]) }}
+                                                    class="btn btn-outline-success btn-sm">
+                                                    <i class="mdi mdi-account-edit"></i>
+                                                    <span>Edit</span>
+                                                </a>
+                                                <form method="POST"
+                                                    action="{{ route('delete-items', ['id' => $row->id_barang]) }}">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?')">
+                                                        <i class="mdi mdi-account-remove"></i>
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             @include('partials._label')
+            @include('partials._scan_barcode')
         </div>
 @endsection
 
@@ -102,7 +105,6 @@
                 height: 40px;
                 border: 1px solid black;
                 cursor: pointer;
-                cursor: pointer;
                 transition: all 0.2s;
             }
 
@@ -115,6 +117,105 @@
                 border-color: lightgreen;
             }
         </style>
+    @endpush
+
+    @push('js-page')
+        <script src="https://unpkg.com/html5-qrcode"></script>
+        <script>
+            let html5QrcodeScanner = null;
+            let lastScannedCode = null;
+            const beepSound = new Audio('{{ asset('music/scanner-beep.mp3') }}');
+
+            document.getElementById('scanModal').addEventListener('show.bs.modal', function () {
+                lastScannedCode = null;
+                document.getElementById('scan-result').classList.add('d-none');
+                document.getElementById('result-id').textContent = '';
+                document.getElementById('result-nama').textContent = '';
+                document.getElementById('result-harga').textContent = '';
+
+                html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+                    fps: 10,
+                    qrbox: { width: 300, height: 100 },
+                    rememberLastUsedCamera: true,
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.CODE_39,
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.CODABAR,
+                        Html5QrcodeSupportedFormats.ITF,
+                    ]
+                }, false);
+
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+                const observer = new MutationObserver(() => {
+                    const btnStart = document.getElementById('html5-qrcode-button-camera-start');
+                    const btnStop = document.getElementById('html5-qrcode-button-camera-stop');
+                    const selectCamera = document.getElementById('html5-qrcode-select-camera');
+                    
+                    
+                    if (btnStart && !btnStart.classList.contains('btn')) {
+                        btnStart.className = 'btn btn-gradient-primary mt-2 mx-2';
+                        btnStart.style.cssText = '';
+                        btnStart.style.display = 'inline-block';
+                    }
+                    
+                    if (btnStop && !btnStop.classList.contains('btn')) {
+                        btnStop.className = 'btn btn-danger mt-2';
+                        btnStop.style.cssText = '';
+                        btnStop.style.display = 'inline-block';
+                    }
+
+                    if (selectCamera && !selectCamera.classList.contains('form-select')) {
+                        selectCamera.className = 'form-select form-select-sm mt-2 mb-2 d-inline-block';
+                        selectCamera.style.cssText = 'width: 90%; color: #333;';
+                    }
+                });
+
+                observer.observe(document.getElementById('reader'), { childList: true, subtree: true });
+            });
+
+            document.getElementById('scanModal').addEventListener('hide.bs.modal', function () {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear().then(() => {
+                        html5QrcodeScanner = null;
+                    }).catch(error => {
+                        console.error("Failed to clear html5QrcodeScanner", error);
+                    });
+                }
+            });
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (decodedText === lastScannedCode) return;
+                lastScannedCode = decodedText;
+
+                beepSound.play();
+
+                fetch(`{{ url('items/barcode') }}/${decodedText}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('result-id').textContent = data.data.id_barang;
+                            document.getElementById('result-nama').textContent = data.data.nama;
+                            document.getElementById('result-harga').textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.data.harga);
+                            document.getElementById('scan-result').classList.remove('d-none');
+                        } else {
+                            alert(data.message || 'Barang tidak ditemukan');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat mencari barang');
+                    });
+            }
+
+            function onScanFailure(error) {
+            }
+        </script>
     @endpush
 
     @push('js-page')
@@ -178,7 +279,7 @@
                 el.addEventListener('click', function () {
                     let row = this.dataset.row;
                     let col = this.dataset.col;
-                    let key = row + '-'.col;
+                    let key = row + '-' + col;
 
                     const selectedCount = selectedItems.length;
 
@@ -222,7 +323,6 @@
                     $('#notification-container').html(notification);
                     sessionStorage.removeItem('notification');
 
-                    // Auto dismiss after 5 seconds
                     setTimeout(function () {
                         $('.alert').fadeOut('slow', function () {
                             $(this).remove();
