@@ -166,10 +166,15 @@ class VendorController extends Controller
 
     public function findByQRcode($id)
     {
+        $idvendor = auth()->user()->vendor->idvendor ?? null;
+        if (!$idvendor) {
+            abort(403, 'Vendor tidak ditemukan untuk user ini.');
+        }
         $orders = DB::table('detail_pesanan')
             ->join('menu', 'detail_pesanan.idmenu', '=', 'menu.idmenu')
             ->join('pesanan', 'detail_pesanan.idpesanan', '=', 'pesanan.idpesanan')
             ->where('detail_pesanan.idpesanan', $id)
+            ->where('menu.idvendor', $idvendor)
             ->select(
                 'pesanan.idpesanan',
                 'pesanan.nama as nama_pemesan',
