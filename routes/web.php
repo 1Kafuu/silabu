@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\TokoController;
 use App\Http\Controllers\QRCodeController;  
 use App\Http\Controllers\Auth\LoginController;
@@ -186,6 +187,12 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('toko')->group(function (
     Route::get('/edit:{id}', [TokoController::class, 'edit'])->name('edit-toko');
     Route::put('/update:{id}', [TokoController::class, 'update'])->name('update-toko');
     Route::put('/delete:{id}', [TokoController::class, 'delete'])->name('delete-toko');
+});
+
+Route::middleware(['verified', 'akses:Sales'])->prefix('sales')->group(function () {
+    Route::get('/', [SalesController::class, 'dashboard'])->name('sales-dashboard');
+    Route::post('/store', [SalesController::class, 'store'])->name('store-sales');
+    Route::get('/barcode/{id}', [SalesController::class, 'findByBarcode'])->name('find-by-barcode');
 });
 
 Auth::routes();

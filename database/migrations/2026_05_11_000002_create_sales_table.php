@@ -18,7 +18,7 @@ return new class extends Migration
             $table->double('longitude');
             $table->double('accuracy');
             $table->integer('jarak');
-            $table->char('status', 20);
+            $table->string('status', 20);
             $table->timestamp('waktu');
 
             $table->foreign('idtoko')->references('idtoko')->on('toko');

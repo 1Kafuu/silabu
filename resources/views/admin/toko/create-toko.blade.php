@@ -50,9 +50,9 @@
                                 </button>
                                 <small id="geo-status" class="d-block mt-1 text-muted"></small>
                             </div>
+                            <button id="create-submit-button" type="submit" class="btn btn-gradient-primary me-2">Simpan</button>
+                            <a href="{{ route('toko-list') }}" class="btn btn-light">Batal</a>
                         </form>
-                        <button id="create-submit-button" type="submit" class="btn btn-gradient-primary me-2">Simpan</button>
-                        <a href="{{ route('toko-list') }}" class="btn btn-light">Batal</a>
                     </div>
                 </div>
             </div>

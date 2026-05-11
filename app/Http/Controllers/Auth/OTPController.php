@@ -73,6 +73,9 @@ class OTPController extends Controller
                     case 'Vendor':
                         $redirectRoute = 'menu-list';
                         break;
+                    case 'Sales':
+                        $redirectRoute = 'sales-dashboard';
+                        break;
                     default:
                         $redirectRoute = 'dashboard';
                 }
