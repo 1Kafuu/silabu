@@ -57,6 +57,12 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ route('toko-list') }}">
+        <span class="menu-title">Toko</span>
+        <i class="mdi mdi-store menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ route('manage-customerBlob') }}">
         <span class="menu-title">Customer (Blob)</span>
         <i class="mdi mdi-account-group menu-icon"></i>

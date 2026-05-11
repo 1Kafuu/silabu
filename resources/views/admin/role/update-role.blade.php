@@ -25,9 +25,9 @@
                                         <span class="text-danger">{{$message}}</span>
                                     @enderror
                                 </div>
+                                <button id="update-role-button" type="submit" class="btn btn-gradient-primary me-2">Submit</button>
+                                <a href="{{ route('role') }}" class="btn btn-light">Cancel</a>
                             </form>
-                            <button id="update-role-button" type="submit" class="btn btn-gradient-primary me-2">Submit</button>
-                            <a href="{{ route('role') }}" class="btn btn-light">Cancel</a>
                     </div>
                 </div>
             </div>

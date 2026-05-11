@@ -58,7 +58,7 @@
   <!-- End plugin js for this page -->
   <!-- inject:js -->
   <script src="{{ asset('js/jquery-4.0.0.min.js') }}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+  <script src="{{ asset('js/jquery.validate.min.js') }}"></script>
   <script src="{{ asset('js/preloader.js') }}"></script>
   <script src="{{ asset('js/misc.js') }}"></script>
    <script src="{{ asset('js/off-canvas.js') }}"></script>

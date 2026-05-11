@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
-            $table->id('idrole');
-            $table->string('nama_role');
+        Schema::create('toko', function (Blueprint $table) {
+            $table->id('idtoko');
+            $table->string('nama_toko', 255);
+            $table->double('latitude');
+            $table->double('longtitude');
+            $table->double('accuracy');
             $table->softDeletes();
-            $table->timestamps();
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('toko');
     }
 };

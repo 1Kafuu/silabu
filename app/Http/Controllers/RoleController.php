@@ -47,7 +47,7 @@ class RoleController extends Controller
 
             \Log::info('Notification HTML: ' . $notificationHTML);
 
-            return response()->json([
+                return response()->json([
                 'success' => true,
                 'notification' => $notificationHTML,
                 'redirect' => route('role')

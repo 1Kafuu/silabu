@@ -30,6 +30,11 @@ $.fn.formHandler = function (options) {
             },
         });
 
+        // Prevent native form submission
+        form.on('submit', function (e) {
+            e.preventDefault();
+        });
+
         // Handle submission
         submitButton.click(function (e) {
             e.preventDefault();

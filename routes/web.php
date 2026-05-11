@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\TokoController;
 use App\Http\Controllers\QRCodeController;  
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OTPController;
@@ -176,6 +177,15 @@ Route::middleware(['verified','akses:Admin'])->prefix('customer')->group(functio
     Route::get('/edit/path/{id}', [CustomerManageController::class, 'editPath'])->name('edit-customerPath');
     Route::put('/update/path/{id}', [CustomerManageController::class, 'updatePath'])->name('update-customerPath');
     Route::put('/delete/path/{id}', [CustomerManageController::class, 'deletePath'])->name('delete-customerPath');
+});
+
+Route::middleware(['verified', 'akses:Admin'])->prefix('toko')->group(function () {
+    Route::get('/', [TokoController::class, 'index'])->name('toko-list');
+    Route::get('/create', [TokoController::class, 'create'])->name('create-toko');
+    Route::post('/store', [TokoController::class, 'store'])->name('store-toko');
+    Route::get('/edit:{id}', [TokoController::class, 'edit'])->name('edit-toko');
+    Route::put('/update:{id}', [TokoController::class, 'update'])->name('update-toko');
+    Route::put('/delete:{id}', [TokoController::class, 'delete'])->name('delete-toko');
 });
 
 Auth::routes();
