@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Poli;
 use Illuminate\Database\Eloquent\Model;
 
 class RoleUser extends Model
 {
     protected $table = 'role_user';
     protected $primaryKey = 'idrole_user';
-    protected $fillable = ['iduser', 'idrole', 'status'];
+    protected $fillable = ['iduser', 'idrole', 'poli_id', 'status'];
 
     public $timestamps = false;
 
@@ -20,5 +21,10 @@ class RoleUser extends Model
     public function role()
     {
         return $this->belongsTo(Role::class, 'idrole', 'idrole');
+    }
+
+    public function poli()
+    {
+        return $this->belongsTo(Poli::class, 'poli_id', 'id');
     }
 }

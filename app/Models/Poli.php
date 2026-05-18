@@ -9,7 +9,8 @@ class Poli extends Model
     protected $table = 'poli';
     protected $fillable = [
         'name',
-        'description',
+        'code',
+        'is_active',
     ];
     public function queues()
     {

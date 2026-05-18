@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminQueueController;
+use App\Http\Controllers\GuestQueueController;
+use App\Http\Controllers\QueueBoardController;
+use App\Http\Controllers\QueueStreamController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\TokoController;
@@ -193,6 +197,21 @@ Route::middleware(['verified', 'akses:Sales'])->prefix('sales')->group(function 
     Route::get('/', [SalesController::class, 'dashboard'])->name('sales-dashboard');
     Route::post('/store', [SalesController::class, 'store'])->name('store-sales');
     Route::get('/barcode/{id}', [SalesController::class, 'findByBarcode'])->name('find-by-barcode');
+});
+
+Route::prefix('antrian')->group(function () {
+    Route::get('/guest', [GuestQueueController::class, 'index'])->name('queue.guest');
+    Route::post('/guest/store', [GuestQueueController::class, 'store'])->name('queue.store');
+    Route::get('/ticket/{queue}', [GuestQueueController::class, 'ticket'])->name('queue.ticket');
+    Route::get('/board/{poli}', [QueueBoardController::class, 'index'])->name('queue.board');
+    Route::get('/stream/{poli}', [QueueStreamController::class, 'stream'])->name('queue.stream');
+});
+
+Route::middleware(['verified', 'akses:AdminLoket'])->prefix('antrian')->group(function () {
+    Route::get('/admin/{poli}', [AdminQueueController::class, 'index'])->name('queue.admin');
+    Route::post('/call-next/{poli}', [AdminQueueController::class, 'callNext'])->name('queue.call-next');
+    Route::post('/mark-late/{queue}', [AdminQueueController::class, 'markLate'])->name('queue.mark-late');
+    Route::post('/call-late/{queue}', [AdminQueueController::class, 'callLate'])->name('queue.call-late');
 });
 
 Auth::routes();
