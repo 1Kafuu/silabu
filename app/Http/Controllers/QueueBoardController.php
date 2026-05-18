@@ -18,6 +18,6 @@ class QueueBoardController extends Controller
 
         $state = $this->queueService->getCacheState($poli->id);
 
-        return view('queue.board', compact('poli', 'state'));
+        return view('queue.board.index', compact('poli', 'state'));
     }
 }

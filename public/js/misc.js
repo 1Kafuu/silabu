@@ -49,22 +49,26 @@ var lightColor = getComputedStyle(document.body).getPropertyValue("--light");
                 return activate(element);
             }
 
-            if (
-                normalizedCurrentPath === normalizedLinkPath ||
-                normalizedCurrentPath.startsWith(normalizedLinkPath + "/")
-            ) {
-                return activate(element);
-            }
-        }
+            // Exact match atau sub-path — pastikan dipisah oleh '/' agar
+            // '/poli' tidak ikut aktif saat di '/poli-something'
+            if (normalizedLinkPath !== "") {
+                if (
+                    normalizedCurrentPath === normalizedLinkPath ||
+                    normalizedCurrentPath.startsWith(normalizedLinkPath + "/")
+                ) {
+                    activate(element);
 
-        function activate(element) {
-            element.parents(".nav-item").last().addClass("active");
-            if (element.parents(".sub-menu").length) {
-                element.closest(".collapse").addClass("show");
-                element.addClass("active");
-            }
-            if (element.parents(".submenu-item").length) {
-                element.addClass("active");
+                    // Jika link berada di dalam sub-menu, buka collapse parent-nya
+                    var subMenu = element.closest(".sub-menu");
+                    if (subMenu.length) {
+                        var collapseEl = subMenu.closest(".collapse");
+                        if (collapseEl.length) {
+                            collapseEl.addClass("show");
+                            collapseEl.closest(".nav-item").addClass("active");
+                            collapseEl.prev(".nav-link").removeClass("collapsed").attr("aria-expanded", "true");
+                        }
+                    }
+                }
             }
         }
 

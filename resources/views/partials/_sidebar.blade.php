@@ -5,7 +5,6 @@
         <div class="nav-profile-image">
           <img src="{{ asset('images/faces/face1.jpg') }}" alt="profile" />
           <span class="login-status online"></span>
-          <!--change to offline or busy as needed-->
         </div>
         <div class="nav-profile-text d-flex flex-column">
           <span class="font-weight-bold mb-2">{{ auth()->user()?->name }}</span>
@@ -31,6 +30,30 @@
         <span class="menu-title">Role Management</span>
         <i class="mdi mdi-shield-edit menu-icon"></i>
       </a>
+    </li>
+    @php
+      $poliActive = request()->is('poli*');
+    @endphp
+    <li class="nav-item {{ $poliActive ? 'active' : '' }}">
+      <a class="nav-link {{ $poliActive ? '' : 'collapsed' }}" data-bs-toggle="collapse" href="#poli-menu" aria-expanded="{{ $poliActive ? 'true' : 'false' }}" aria-controls="poli-menu">
+        <span class="menu-title">Poli Management</span>
+        <i class="menu-arrow"></i>
+        <i class="mdi mdi-hospital-building menu-icon"></i>
+      </a>
+      <div class="collapse {{ $poliActive ? 'show' : '' }}" id="poli-menu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('poli') ? 'active' : '' }}" href="{{ route('poli') }}">
+              <span class="menu-title">Daftar Poli</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('poli.assign-loket') ? 'active' : '' }}" href="{{ route('poli.assign-loket') }}">
+              <span class="menu-title">Assign Admin Loket</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{{ route('book-list') }}">

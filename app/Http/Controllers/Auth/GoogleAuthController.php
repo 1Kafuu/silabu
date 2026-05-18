@@ -74,7 +74,19 @@ class GoogleAuthController extends Controller
     private function redirectBasedOnStatus($user)
     {
         if ($user->status === 'verified') {
-            return redirect()->intended('/dashboard');
+            // Ambil role aktif untuk redirect yang tepat
+            $user->load('role_user.role');
+            $activeRole = $user->role_user->where('status', 'active')->first();
+            $roleName = $activeRole?->role?->nama_role;
+
+            return match ($roleName) {
+                'Admin'       => redirect()->intended('/dashboard'),
+                'Customer'    => redirect()->intended(route('customer-list')),
+                'Vendor'      => redirect()->intended(route('menu-list')),
+                'Sales'       => redirect()->intended(route('sales-dashboard')),
+                'Admin Loket' => redirect()->intended(route('queue-admin', $activeRole->poli_id ?? 1)),
+                default       => redirect()->intended('/dashboard'),
+            };
         }
 
         // Untuk status yang bukan verified (active, pending, dll), kirim OTP

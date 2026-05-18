@@ -14,6 +14,7 @@ class Queue extends Model
         'customer_name',
         'queue_order',
         'status',
+        'call_count',
         'called_at',
         'finished_at',
     ];

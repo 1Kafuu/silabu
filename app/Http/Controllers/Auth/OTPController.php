@@ -76,6 +76,9 @@ class OTPController extends Controller
                     case 'Sales':
                         $redirectRoute = 'sales-dashboard';
                         break;
+                    case 'Admin Loket':
+                        $redirectRoute = 'queue-admin';
+                        break;
                     default:
                         $redirectRoute = 'dashboard';
                 }

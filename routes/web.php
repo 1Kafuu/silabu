@@ -19,6 +19,8 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\POSController;
+use App\Http\Controllers\PoliAssignController;
+use App\Http\Controllers\PoliController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
@@ -33,7 +35,7 @@ Route::get('/auth/callback', [GoogleAuthController::class, 'handleGoogleCallback
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login-form');
 
 Route::get('/verify', function () {
-    return view('auth.otp-verify');
+    return view('auth-otp-verify');
 })->name('otp-verify')
 ->middleware(['verified']);
 
@@ -47,7 +49,7 @@ Route::get('/pdf-landscape', [PDFGeneratorController::class, 'landscape'])->name
 Route::post('/pdf-label', [PDFGeneratorController::class, 'label'])->name('label');
 
 Route::get('/label-selected', function () {
-    return view('partials._label');
+    return view('partials-_label');
 });
 
 Route::get("/dashboard", [HomeController::class, "index"])->name("dashboard")
@@ -75,6 +77,18 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('role')->group(function (
     Route::put('/delete:{id}', [RoleController::class, 'delete'])->name('delete-role');
     Route::get('/edit:{id}', [RoleController::class, 'edit'])->name('edit-role');
     Route::put('/update:{id}', [RoleController::class, 'update'])->name('update-role');
+});
+
+Route::middleware(['verified', 'akses:Admin'])->prefix('poli')->group(function () {
+    Route::get('/', [PoliController::class, 'index'])->name('poli');
+    Route::get('/create', [PoliController::class, 'create'])->name('create-poli');
+    Route::post('/store', [PoliController::class, 'store'])->name('store-poli');
+    Route::put('/delete:{id}', [PoliController::class, 'delete'])->name('delete-poli');
+    Route::get('/edit:{id}', [PoliController::class, 'edit'])->name('edit-poli');
+    Route::put('/update:{id}', [PoliController::class, 'update'])->name('update-poli');
+    Route::get('/assign-loket', [PoliAssignController::class, 'index'])->name('poli-assign-loket');
+    Route::post('/assign-loket/store', [PoliAssignController::class, 'store'])->name('poli-assign-loket-store');
+    Route::delete('/assign-loket/destroy:{id}', [PoliAssignController::class, 'destroy'])->name('poli-assign-loket-destroy');
 });
 
 Route::middleware(['verified', 'akses:Admin'])->prefix('book')->group(function () {
@@ -116,10 +130,10 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('items')->group(function 
 
 Route::middleware(['verified', 'akses:Admin'])->prefix('shipment')->group(function () {
     Route::get('/', function () { 
-        return view('admin.shipment.shipment'); 
+        return view('admin-shipment-shipment'); 
     })->name('shipment');
     Route::get('/datatables', function () {
-        return view('admin.shipment.shipment-datatables');
+        return view('admin-shipment-shipment-datatables');
     })->name('shipment-datatables');
 });
 
@@ -139,7 +153,7 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('pos')->group(function ()
 
 Route::middleware(['auth', 'verified', 'akses:Admin'])->prefix('kota')->group(function () {
     Route::get('/', function () { 
-        return view('admin.kota.kota'); 
+        return view('admin-kota-kota'); 
     })->name('kota');
 });
 
@@ -150,9 +164,9 @@ Route::prefix('customer')->group(function () {
 
 // Midtrans Callback URL
 // This route receives payment notifications from Midtrans
-Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans.callback');
+Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans-callback');
 // Midtrans pay pending order
-Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans.pay');
+Route::post('/midtrans/pay', [MidtransController::class, 'payPending'])->name('midtrans-pay');
 
 Route::get('/generate-qr/{id}', [QRCodeController::class,'qrcode'])->name('generate-qr');
 
@@ -200,18 +214,19 @@ Route::middleware(['verified', 'akses:Sales'])->prefix('sales')->group(function 
 });
 
 Route::prefix('antrian')->group(function () {
-    Route::get('/guest', [GuestQueueController::class, 'index'])->name('queue.guest');
-    Route::post('/guest/store', [GuestQueueController::class, 'store'])->name('queue.store');
-    Route::get('/ticket/{queue}', [GuestQueueController::class, 'ticket'])->name('queue.ticket');
-    Route::get('/board/{poli}', [QueueBoardController::class, 'index'])->name('queue.board');
-    Route::get('/stream/{poli}', [QueueStreamController::class, 'stream'])->name('queue.stream');
+    Route::get('/guest', [GuestQueueController::class, 'index'])->name('queue-guest');
+    Route::post('/guest/store', [GuestQueueController::class, 'store'])->name('queue-store');
+    Route::get('/ticket/{queue}', [GuestQueueController::class, 'ticket'])->name('queue-ticket');
+    Route::get('/board/{poli}', [QueueBoardController::class, 'index'])->name('queue-board');
+    Route::get('/stream/{poli}', [QueueStreamController::class, 'stream'])->name('queue-stream');
 });
 
-Route::middleware(['verified', 'akses:AdminLoket'])->prefix('antrian')->group(function () {
-    Route::get('/admin/{poli}', [AdminQueueController::class, 'index'])->name('queue.admin');
-    Route::post('/call-next/{poli}', [AdminQueueController::class, 'callNext'])->name('queue.call-next');
-    Route::post('/mark-late/{queue}', [AdminQueueController::class, 'markLate'])->name('queue.mark-late');
-    Route::post('/call-late/{queue}', [AdminQueueController::class, 'callLate'])->name('queue.call-late');
+Route::middleware(['verified', 'akses:Admin Loket'])->prefix('antrian')->group(function () {
+    Route::get('/admin/{poli}', [AdminQueueController::class, 'index'])->name('queue-admin');
+    Route::post('/call-next/{poli}', [AdminQueueController::class, 'callNext'])->name('queue-call-next');
+    Route::post('/mark-late/{queue}', [AdminQueueController::class, 'markLate'])->name('queue-mark-late');
+    Route::post('/mark-done/{queue}', [AdminQueueController::class, 'markDone'])->name('queue-mark-done');
+    Route::post('/call-late/{queue}', [AdminQueueController::class, 'callLate'])->name('queue-call-late');
 });
 
 Auth::routes();

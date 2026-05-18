@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\RoleUser;
-use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -164,11 +163,12 @@ class LoginController extends Controller
             $roleName = $activeRole->role->nama_role ?? null;
 
             return match ($roleName) {
-                'Admin'    => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
-                'Customer' => redirect()->intended(route('customer-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
-                'Vendor'   => redirect()->intended(route('menu-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
-                'Sales'    => redirect()->intended(route('sales-dashboard'))->with('success', 'Welcome back, ' . $user->name . '!'),
-                default    => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Admin'       => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Customer'    => redirect()->intended(route('customer-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Vendor'      => redirect()->intended(route('menu-list'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Sales'       => redirect()->intended(route('sales-dashboard'))->with('success', 'Welcome back, ' . $user->name . '!'),
+                'Admin Loket' => redirect()->intended(route('queue-admin', $activeRole->poli_id ?? 1))->with('success', 'Welcome back, ' . $user->name . '!'),
+                default       => redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!'),
             };
         }
 

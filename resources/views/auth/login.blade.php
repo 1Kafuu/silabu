@@ -44,6 +44,8 @@
           <i class="mdi mdi-google me-2"></i>Connect using google </a>
         <a href="{{ route('customer-list') }}" class="btn btn-block btn-success">
           <i class="mdi mdi-cart me-2"></i>Customer Page </a>
+        <a href="{{ route('queue-guest') }}" class="btn btn-block btn-info">
+          <i class="mdi mdi-account-injury me-2"></i>Patient Page </a>
       </div>
       <div class="text-center mt-4 font-weight-light"> Don't have an account? <a href="{{route('register')}}"
           class="text-primary">Create</a>

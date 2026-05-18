@@ -18,7 +18,7 @@ class GuestQueueController extends Controller
     {
         $polis = Poli::where('is_active', true)->get();
 
-        return view('queue.guest', compact('polis'));
+        return view('queue.registrasi.guest', compact('polis'));
     }
 
     /**
@@ -36,7 +36,7 @@ class GuestQueueController extends Controller
             $request->customer_name
         );
 
-        return redirect()->route('queue.ticket', $queue->id);
+        return redirect()->route('queue-ticket', $queue->id);
     }
 
     /**
@@ -46,6 +46,6 @@ class GuestQueueController extends Controller
     {
         $queue->load('poli');
 
-        return view('queue.ticket', compact('queue'));
+        return view('queue.registrasi.ticket', compact('queue'));
     }
 }
