@@ -55,7 +55,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(RoleUser::class, 'iduser', 'id');
     }
 
-    public function vendor() {
-        return $this->hasOne(Vendor::class,'iduser', 'id');
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class, 'iduser', 'id');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user_id', 'id');
     }
 }

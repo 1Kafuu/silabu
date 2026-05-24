@@ -1,0 +1,53 @@
+/* ============================================================
+   attendance.css — styles for admin/attendance/index.blade.php
+   ============================================================ */
+
+.letter-spacing-1 { letter-spacing: 0.12em; }
+
+/* ── NFC pulse animation ─────────────────────────────────── */
+.nfc-pulse-wrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(126, 87, 194, 0.08);
+    transition: background 0.3s;
+}
+.nfc-pulse-wrapper.scanning {
+    animation: nfc-pulse 1.2s ease-in-out infinite;
+    background: rgba(126, 87, 194, 0.15);
+}
+.nfc-pulse-wrapper.success {
+    background: rgba(40, 167, 69, 0.15);
+}
+.nfc-pulse-wrapper.error {
+    background: rgba(220, 53, 69, 0.12);
+}
+.nfc-icon {
+    font-size: 3rem;
+    transition: color 0.3s;
+}
+@keyframes nfc-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(126, 87, 194, 0.35); }
+    50%       { box-shadow: 0 0 0 16px rgba(126, 87, 194, 0); }
+}
+
+/* ── Alert ───────────────────────────────────────────────── */
+#scan-result .alert { border-radius: 10px; }
+
+/* ── Badge ───────────────────────────────────────────────── */
+.badge-pill { font-size: 0.85rem; padding: 0.4em 0.75em; }
+
+/* ── New row flash ───────────────────────────────────────── */
+@keyframes row-flash {
+    0%   { background-color: rgba(40, 167, 69, 0.25); }
+    100% { background-color: transparent; }
+}
+.new-row-flash {
+    animation: row-flash 1.8s ease-out forwards;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+#empty-state i { display: block; }

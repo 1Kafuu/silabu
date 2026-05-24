@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminQueueController;
+use App\Http\Controllers\NFCController;
 use App\Http\Controllers\GuestQueueController;
 use App\Http\Controllers\QueueBoardController;
 use App\Http\Controllers\QueueStreamController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\PoliAssignController;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WilayahController;
@@ -68,6 +70,15 @@ Route::middleware(['verified', 'akses:Admin'])->prefix('user')->group(function (
     Route::put('/set-active-role:{userId}/{roleUserId}', [UserController::class, 'setActiveRole'])->name('set-active-role');
     Route::put('/set-inactive-role:{userId}/{roleUserId}', [UserController::class, 'setInactiveRole'])->name('set-inactive-role');
     Route::delete('/remove-role:{userId}/{roleUserId}', [UserController::class, 'removeRole'])->name('remove-role');
+});
+
+Route::middleware(['verified', 'akses:Admin'])->prefix('student')->group(function () {
+    Route::get('/', [StudentController::class, 'index'])->name('student-list');
+    Route::get('/create', [StudentController::class, 'create'])->name('create-student');
+    Route::post('/store', [StudentController::class, 'store'])->name('store-student');
+    Route::get('/edit:{id}', [StudentController::class, 'edit'])->name('edit-student');
+    Route::put('/update:{id}', [StudentController::class, 'update'])->name('update-student');
+    Route::put('/delete:{id}', [StudentController::class, 'delete'])->name('delete-student');
 });
 
 Route::middleware(['verified', 'akses:Admin'])->prefix('role')->group(function () {
@@ -227,6 +238,11 @@ Route::middleware(['verified', 'akses:Admin Loket'])->prefix('antrian')->group(f
     Route::post('/mark-late/{queue}', [AdminQueueController::class, 'markLate'])->name('queue-mark-late');
     Route::post('/mark-done/{queue}', [AdminQueueController::class, 'markDone'])->name('queue-mark-done');
     Route::post('/call-late/{queue}', [AdminQueueController::class, 'callLate'])->name('queue-call-late');
+});
+
+Route::middleware(['verified', 'akses:Admin'])->prefix('attendance')->group(function () {
+    Route::get('/', [NFCController::class, 'index'])->name('attendance');
+    Route::post('/scan', [NFCController::class, 'scan'])->name('attendance-scan');
 });
 
 Auth::routes();

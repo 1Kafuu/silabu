@@ -26,6 +26,18 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ route('student-list') }}">
+        <span class="menu-title">Student</span>
+        <i class="mdi mdi-school menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('attendance*') ? 'active' : '' }}" href="{{ route('attendance') }}">
+        <span class="menu-title">Absensi NFC</span>
+        <i class="mdi mdi-nfc menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ route('role') }}">
         <span class="menu-title">Role Management</span>
         <i class="mdi mdi-shield-edit menu-icon"></i>
@@ -48,7 +60,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('poli.assign-loket') ? 'active' : '' }}" href="{{ route('poli.assign-loket') }}">
+            <a class="nav-link {{ request()->routeIs('poli-assign-loket') ? 'active' : '' }}" href="{{ route('poli-assign-loket') }}">
               <span class="menu-title">Assign Admin Loket</span>
             </a>
           </li>
