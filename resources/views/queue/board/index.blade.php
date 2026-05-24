@@ -66,11 +66,20 @@
             </div>
 
             <div class="queue-list-panel">
-                <h3>Antrian Berikutnya</h3>
+                <h3 id="queue-list-header">Antrian Menunggu ({{ count($state['waiting_list'] ?? []) }})</h3>
                 <div id="queue-list">
-                    <div style="color:#2d1b5e; font-size:0.85rem; padding:8px 4px;">
-                        Memuat data antrian...
-                    </div>
+                    @forelse ($state['waiting_list'] ?? [] as $i => $q)
+                        <div class="queue-list-item">
+                            <span class="q-num">{{ $q['queue_number'] }}</span>
+                            <span class="q-name">{{ $q['customer_name'] }}</span>
+                            <span class="q-order">#{{ $i + 1 }}</span>
+                        </div>
+                    @empty
+                        <div class="queue-list-empty">
+                            <span class="mdi mdi-check-circle-outline"></span>
+                            Tidak ada antrian menunggu
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>

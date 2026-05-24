@@ -32,7 +32,7 @@
         const dot   = document.getElementById('conn-dot');
         const label = document.getElementById('conn-label');
         if (!dot || !label) return;
-        // Selalu tampilkan Realtime — reconnect terjadi di background
+        
         dot.style.background = '#4ade80';
         label.textContent    = cfg.mode === 'board' ? 'Terhubung' : 'Realtime';
     }
@@ -105,6 +105,32 @@
             if (noQueueEl) noQueueEl.style.display = '';
             lastQueueNumber = null;
             lastCalledAt    = null;
+        }
+
+        // ── Waiting list ──────────────────────────────────────
+        const queueListEl = document.getElementById('queue-list');
+        if (queueListEl) {
+            const list = state.waiting_list ?? [];
+
+            // Update header count
+            const headerEl = document.getElementById('queue-list-header');
+            if (headerEl) headerEl.textContent = 'Antrian Menunggu (' + list.length + ')';
+
+            if (list.length === 0) {
+                queueListEl.innerHTML =
+                    '<div class="queue-list-empty">'
+                    + '<span class="mdi mdi-check-circle-outline"></span>'
+                    + 'Tidak ada antrian menunggu'
+                    + '</div>';
+            } else {
+                queueListEl.innerHTML = list.map(function (q, i) {
+                    return '<div class="queue-list-item">'
+                        + '<span class="q-num">' + q.queue_number + '</span>'
+                        + '<span class="q-name">' + q.customer_name + '</span>'
+                        + '<span class="q-order">#' + (i + 1) + '</span>'
+                        + '</div>';
+                }).join('');
+            }
         }
 
         if (state.updated_at) {
